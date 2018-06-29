@@ -127,7 +127,7 @@ if __name__ == '__main__':
   # ACTION ITEM for developers:
   #     When running in production *do not* leave this option enabled.
 
-  # os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+  os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
   # Specify a hostname and port that are set as a valid redirect URI
 
