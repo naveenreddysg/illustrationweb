@@ -126,8 +126,11 @@ if __name__ == '__main__':
   # ACTION ITEM for developers:
   #     When running in production *do not* leave this option enabled.
 
+  os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+
   # Specify a hostname and port that are set as a valid redirect URI
+
   # for your API project in the Google API Console.
 
-  port = int(os.environ.get("PORT", 8000))
+  port = int(os.environ.get("PORT", 8080))
   app.run(host="localhost", debug=True, port=port)
