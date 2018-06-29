@@ -111,6 +111,5 @@ def credentials_to_dict(credentials):
 
 if __name__ == '__main__':
 
-  os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
   port = int(os.environ.get("PORT", 8080))
   app.run(host="localhost", debug=True, port=port)
