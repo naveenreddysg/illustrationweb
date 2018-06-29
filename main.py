@@ -39,6 +39,7 @@ def initialize_analyticsreporting():
   # If the credentials don't exist or are invalid run through the native client
   # flow. The Storage object will ensure that if successful the good
   # credentials will get written back to a file.
+
   storage = file.Storage('analyticsreporting.dat')
   credentials = storage.get()
   if credentials is None or credentials.invalid:
@@ -57,10 +58,9 @@ def get_report(analytics):
         'reportRequests': [
         {
           'viewId': VIEW_ID,
-          'dateRanges': [{'startDate': 'yesterday', 'endDate': 'today'}, {'startDate': 'yesterday', 'endDate': 'today'}],
-          "samplingLevel": 'SMALL',
-          'metrics': {'expression': 'ga:sessions'},
-          'dimensions': {'name': 'ga:channelGrouping'}
+          'dateRanges': [{'startDate': '7daysAgo', 'endDate': 'today'}],
+          'metrics': [{'expression': 'ga:sessions'}],
+          'dimensions': [{'name': 'ga:channelGrouping'}, {'name': 'ga:date'}]
         }
         ]
       }
