@@ -3,7 +3,6 @@
 import os
 import flask
 import requests
-
 import google.oauth2.credentials
 import google_auth_oauthlib.flow
 import googleapiclient.discovery
@@ -45,7 +44,7 @@ def index():
 
   flask.session['credentials'] = credentials_to_dict(credentials)
 
-  return flask.jsonify(**files)
+  return flask.render_template("result.html", result=files)
 
 
 @app.route('/authorize')
