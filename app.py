@@ -28,6 +28,7 @@ API_VERSION = 'v3'
 
 
 app = flask.Flask(__name__)
+app.jinja_env.filters['zip'] = zip
 
 # Note: A secret key is included in the sample so that it works.
 # If you use this code in your application, replace this with a truly secret
@@ -111,6 +112,10 @@ def index():
       print(e)
       return render_template("page_500.html")
 
+
+@app.route("/charts")
+def charts():
+    return render_template("echarts.html")
 
 @app.route('/authorize')
 def authorize():
