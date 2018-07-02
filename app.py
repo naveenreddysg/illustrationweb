@@ -49,9 +49,19 @@ def index():
   present = mainClass(dates[0]['pre_start'], dates[0]['pre_end'], service)
   previous = mainClass(dates[0]['prv_start'], dates[0]['prv_end'], service)
   sessions = SessionsCategoryResults(present, previous, 'date').main()
+  conversions = Conversions(present, previous, 'month').main()
+  traffic = WebsiteTrafficResults(present, previous, 'date').main()
+  bouncerate = BounceRateResults(present, previous).main()
+  avgduration = AvgSessionDuration(present, previous).main()
   result = {
       "sessions": sessions['totalSessions'],
       "session_category": sessions['sessions']['present'],
+      'traffic': traffic,
+      'conversions': conversions,
+      'session_category_line_data': sessions['session_category_line_data'],
+      'session_region_line_data': sessions['session_region_line_data'],
+      'bouncerate': bouncerate,
+      'avgduration': avgduration,
   }
 
   flask.session['credentials'] = credentials_to_dict(credentials)
