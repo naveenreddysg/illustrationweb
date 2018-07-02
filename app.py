@@ -51,6 +51,7 @@ def index():
   sessions = SessionsCategoryResults(present, previous, 'date').main()
   conversions = Conversions(present, previous, 'month').main()
   traffic = WebsiteTrafficResults(present, previous, 'date').main()
+  bouncerate = BounceRateResults(present, previous).main()
   result = {
       "sessions": sessions['totalSessions'],
       "session_category": sessions['sessions']['present'],
@@ -58,6 +59,7 @@ def index():
       'conversions': conversions,
       'session_category_line_data': sessions['session_category_line_data'],
       'session_region_line_data': sessions['session_region_line_data'],
+      'bouncerate': bouncerate,
   }
 
   flask.session['credentials'] = credentials_to_dict(credentials)
