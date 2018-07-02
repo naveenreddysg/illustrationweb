@@ -183,11 +183,3 @@ def get_month_names(date1, date2):
     month2 = calendar.month_name[int(date2.split("-")[1])]
     return month1, month2
 
-def credentials_to_dict(credentials):
-
-  return {'token': credentials.token,
-          'refresh_token': credentials.refresh_token,
-          'token_uri': credentials.token_uri,
-          'client_id': credentials.client_id,
-          'client_secret': credentials.client_secret,
-          'scopes': credentials.scopes}

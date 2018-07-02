@@ -167,8 +167,8 @@ def index():
                                  option=option, visitors=visitors)
       elif dates['option'] == "30":
           option = 'This Month (Last 4 Weeks)'
-          present = mainClass("2018-05-01", "2018-05-31")
-          previous = mainClass("2018-04-01", "2018-04-30")
+          present = mainClass("2018-05-01", "2018-05-31", service)
+          previous = mainClass("2018-04-01", "2018-04-30", service)
           return render_template(
               'coming_soon.html',
           )
