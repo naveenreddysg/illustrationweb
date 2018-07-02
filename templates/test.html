@@ -1,0 +1,840 @@
+{% extends "base.html" %}
+{% block content %}
+<script src='https://cdn.jsdelivr.net/npm/chart.js@2.7.1/dist/Chart.min.js'></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.2.0"></script>
+<script>
+$(function() {
+    var start = moment().subtract(1, 'days').subtract(7,'days');
+    var end = moment().subtract(2, 'days');
+    function cb(start, end) {
+        $('#test span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+    }
+    $('#test').daterangepicker({
+        "minDate": "1/1/2016",
+        maxDate:moment().subtract(2, 'days'),
+        startDate: start,
+        endDate: end,
+        "opens": "left",
+        "alwaysShowCalendars": true,
+    }, cb);
+    cb(start, end);
+    });
+$(document).ready(function(){
+    $(".applyBtn").off().on('click', function(){
+        $("#mySelect").val("CustomRange")
+    });
+});
+function func1() {
+  document.getElementById("mySelect").value="7"
+};
+window.onload=func1;
+</script>
+<header class="app-header navbar" style="height:75px;background-color:white;">
+    <div class="container">
+        <div class="row" style="margin-left: -150px !important">
+            <div class="col align-self-start">
+                <a class="navbar-brand" href="#"></a>
+                <ul class="nav navbar-nav ml-auto"></ul>
+            </div>
+        </div>
+        <div class="row" style="margin-right: -150px !important">
+            <div class="col align-self-end">
+                <form class="form-inline" method="post" action="/">
+                  <div class="form-group mb-2">
+                      <label class="lb"><b>SELECT DATES:&nbsp;</b></label>
+                      <select style="border-color:#EB1414 !important" class="form-control sl"  name="option" onChange="myFunction()" id="mySelect">
+                        <option value="7">Last 7 days</option>
+                        <option value="30">This Month (Last 4 Weeks)</option>
+                        <option value="LastMonth">Prev. Month</option>
+                        <option value="LastMonthPrevYear">Prev. Month of Past Year</option>
+                        <option value="12">Last 12 Months</option>
+                        <option value="LastYear">Last Year</option>
+                        <option value="CustomRange">Custom Range</option>
+                      </select>
+                  </div>
+                  <div id="demo" class="form-group "><input class="form-rounded" name="dates" id="test" readonly/></div>
+                  <button style="margin:10px 10px 10px 10px" type="submit" class="btn btn-danger">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</header>
+<div style="margin:90px 10px 10px 10px">
+    <div class="card">
+        <div class="card-body" style="background-color:#3585F2;">
+            <div style="text-align:center;">
+                <h2>Your Website Traffic Snapshots for {{option}}</h2>
+                  <p><font size="2"><b>({{dates['pre_date']}})</b></font> vs <font size="2"><b>({{dates['prev_date']}})</b></font></p>
+            </div>
+        </div>
+        <div class="card-body" style="text-align:center">
+            <h5>All Traffic | Search Traffic | Ad Traffic | Social Traffic | Email Traffic | Mobile+Tablet Traffic | Returning Users</h5>
+            <img src="/static/img/graph.png"/>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <h3 style="text-align:center">How did you acquire your users?</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col" style="margin:0px -2px 0px 15px;padding:20px; border: 2px solid #000000">
+                    <h4>Traffic by Channel</h4>
+                    <canvas id="myChart-2" width="100%"></canvas>
+                </div>
+                <div class="col" style="margin:0px 15px 0px 0px;padding:20px;border: 2px solid #000000">
+                    <h4>Traffic by Geo</h4>
+                    <canvas id="myChart-9" width="100%"></canvas>
+                </div>
+            </div>
+            <div class="col-12" style="margin:-2px 0px;padding:20px;border: 2px solid #000000">
+                  <h4>Percent of Traffic by Channel & Region</h4>
+                  <canvas id="myChart-1" height="90"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <h3 style="text-align:center;">Which Areas Needs Improvement?</h3>
+        </div>
+        <div class="card-body" style="margin:-20px 15px 15px 15px">
+            <div class="row">
+                <div class="col" style="padding:20px;border: 2px solid #000000">
+                    <h4>Channel Performance</h4>
+                    <canvas id="myChart-6" height="90"></canvas>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col" style="margin-top:-2px;padding:20px;border: 2px solid #000000">
+                    <h4>Geo Performance</h4>
+                    <canvas id="myChart-8" height="90"></canvas>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col" style="margin-top:-2px;padding:20px;border: 2px solid #000000">
+                    <h4>Percent Change by Channel and Geo</h4>
+                    <canvas id="myChart-3" height="90"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+var ctx1 = document.getElementById("myChart-2").getContext('2d');
+var myChart1 = new Chart(ctx1, {
+    type: 'bar',
+    data: {
+        labels: [{% for item in result['sessions'] %}
+                  {%if item['Country'] != 'Total' %}
+                  "{{item['Country']}}",
+                  {% endif %}
+              {% endfor %}],
+        datasets: [{
+            label: ['{{MonthNames[0]}}'],
+            data: [{% for item in result['sessions'] %}
+                    {%if item['Country'] != 'Total' %}
+                  "{{item['Current']}}",
+                  {% endif %}
+                  {% endfor %}],
+            backgroundColor: [{% for item in result['sessions'] %}
+                    {%if item['Country'] != 'Total' %}
+                  'rgba(45, 180, 152, 0.7)',
+                  {% endif %}
+                  {% endfor %}],
+            borderColor: [{% for item in result['sessions'] %}
+                    {%if item['Country'] != 'Total' %}
+                  'rgba(45, 180, 152, 1)',
+                  {% endif %}
+                  {% endfor %}],
+            borderWidth: 0.5
+        },
+        {
+        datalabels: {
+            color:'#000000',
+            offset: -20,
+      	    formatter: function(value, context) {
+                    return context.dataset.data[context.dataIndex] + ' %';
+                }
+                },
+            label: ['Change'],
+            type: 'line',
+            fill: false,
+            data: [{% for item in result['sessions'] %}
+                    {%if item['Country'] != 'Total' %}
+                  {{item['Change'].split('%')[0]}},
+                  {% endif %}
+                  {% endfor %}],
+            backgroundColor: [
+                  'rgba(225, 52, 65, 0.8)',
+                  ],
+            borderColor: [
+                  'rgba(225, 52, 65, 0.4)',
+                  ]
+        }]
+    },
+    options: {
+        plugins: {
+              datalabels: {
+                align: 'end',
+                anchor: 'end',
+                backgroundColor: null,
+                borderColor: null,
+                borderRadius: 4,
+                borderWidth: 1,
+                color:'#6b6a66',
+                font: {
+                  size: 12,
+                  weight: 600
+                },
+                offset: 0,
+                padding: 0,
+              }
+            },
+        title: {
+			display: false,
+			text: 'Traffic by Channel'
+			},
+        tooltips: {
+            mode: 'index',
+            },
+        scales: {
+            yAxes: [{
+                stacked: true,
+                gridLines: {
+                    display:true
+                },
+                ticks: {
+                    beginAtZero:true
+                }
+            }],
+            xAxes: [{
+                stacked: true,
+                gridLines: {
+                    display:true
+                },
+            }]
+        }
+    }
+});
+
+var ctx1 = document.getElementById("myChart-9").getContext('2d');
+var myChart1 = new Chart(ctx1, {
+    type: 'bar',
+    data: {
+        labels: [{% for item in result['sessions'] %}
+                  {%if item['Country'] != 'Total' %}
+                  "{{item['Country']}}",
+                  {% endif %}
+              {% endfor %}],
+        datasets: [{
+            label: ['{{MonthNames[0]}}'],
+            data: [{% for item in result['sessions'] %}
+                    {%if item['Country'] != 'Total' %}
+                  "{{item['Current']}}",
+                  {% endif %}
+                  {% endfor %}],
+            backgroundColor: [{% for item in result['sessions'] %}
+                    {%if item['Country'] != 'Total' %}
+                  'rgba(45, 180, 152, 0.7)',
+                  {% endif %}
+                  {% endfor %}],
+            borderColor: [{% for item in result['sessions'] %}
+                    {%if item['Country'] != 'Total' %}
+                  'rgba(45, 180, 152, 1)',
+                  {% endif %}
+                  {% endfor %}],
+            borderWidth: 0.5
+        },
+        {
+        datalabels: {
+            color:'#000000',
+            offset: -20,
+      	    formatter: function(value, context) {
+                    return context.dataset.data[context.dataIndex] + ' %';
+                }
+                },
+            label: ['Change'],
+            type: 'line',
+            fill: false,
+            data: [{% for item in result['sessions'] %}
+                    {%if item['Country'] != 'Total' %}
+                  {{item['Change'].split('%')[0]}},
+                  {% endif %}
+                  {% endfor %}],
+            backgroundColor: [
+                  'rgba(225, 52, 65, 0.8)',
+                  ],
+            borderColor: [
+                  'rgba(225, 52, 65, 0.4)',
+                  ]
+        }]
+    },
+    options: {
+        plugins: {
+              datalabels: {
+                align: 'end',
+                anchor: 'end',
+                backgroundColor: null,
+                borderColor: null,
+                borderRadius: 4,
+                borderWidth: 1,
+                color:'#6b6a66',
+                font: {
+                  size: 12,
+                  weight: 600
+                },
+                offset: 0,
+                padding: 0,
+              }
+            },
+        title: {
+			display: false,
+			text: 'Traffic by Channel'
+			},
+        tooltips: {
+            mode: 'index',
+            },
+        scales: {
+            yAxes: [{
+                stacked: true,
+                gridLines: {
+                    display:true
+                },
+                ticks: {
+                    beginAtZero:true
+                }
+            }],
+            xAxes: [{
+                stacked: true,
+                gridLines: {
+                    display:true
+                },
+            }]
+        }
+    }
+});
+
+var ctx2 = document.getElementById("myChart-1").getContext('2d');
+var myChart2 = new Chart(ctx2, {
+			type: 'bar',
+			data: {
+				labels: ['UK', 'US', 'France', 'China', 'India', 'SEA', 'ANZ', 'ROW'],
+				datasets: [{
+				datalabels: {
+                    display: false,
+                },
+                label: ['Organic Search'],
+                data: [{{result['session_category']['present'][0]['Organic Search']}},{{result['session_category']['present'][1]['Organic Search']}},
+                {{result['session_category']['present'][2]['Organic Search']}},{{result['session_category']['present'][3]['Organic Search']}},
+                {{result['session_category']['present'][4]['Organic Search']}},{{result['session_category']['present'][5]['Organic Search']}},
+                {{result['session_category']['present'][6]['Organic Search']}},{{result['session_category']['present'][7]['Organic Search']}}],
+                backgroundColor: [
+                    'rgba(51, 100, 255, 0.8)','rgba(51, 100, 255, 0.8)','rgba(51, 100, 255, 0.8)','rgba(51, 100, 255, 0.8)',
+                    'rgba(51, 100, 255, 0.8)','rgba(51, 100, 255, 0.8)','rgba(51, 100, 255, 0.8)','rgba(51, 100, 255, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)',
+                    'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)'
+                ],
+                borderWidth: 0.5
+            },
+            {
+                datalabels: {
+                    display: false
+                },
+                label: ['Direct'],
+                data: [{{result['session_category']['present'][0]['Direct']}},{{result['session_category']['present'][1]['Direct']}},
+                {{result['session_category']['present'][2]['Direct']}},{{result['session_category']['present'][3]['Direct']}},
+                {{result['session_category']['present'][4]['Direct']}},{{result['session_category']['present'][5]['Direct']}},
+                {{result['session_category']['present'][6]['Direct']}},{{result['session_category']['present'][7]['Direct']}}],
+                backgroundColor: [
+                    'rgba(255, 49, 49, 0.8)','rgba(255, 49, 49, 0.8)','rgba(255, 49, 49, 0.8)','rgba(255, 49, 49, 0.8)',
+                    'rgba(255, 49, 49, 0.8)','rgba(255, 49, 49, 0.8)','rgba(255, 49, 49, 0.8)','rgba(255, 49, 49, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)',
+                    'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)'
+                ],
+                borderWidth: 0.5
+                },
+            {
+                datalabels: {
+                    display: false
+                },
+                label: ['Referral'],
+                data: [{{result['session_category']['present'][0]['Referral']}},{{result['session_category']['present'][1]['Referral']}},
+                {{result['session_category']['present'][2]['Referral']}},{{result['session_category']['present'][3]['Referral']}},
+                {{result['session_category']['present'][4]['Referral']}},{{result['session_category']['present'][5]['Referral']}},
+                {{result['session_category']['present'][6]['Referral']}},{{result['session_category']['present'][7]['Referral']}}],
+                backgroundColor: [
+                    'rgba(252, 135, 54,0.8)','rgba(252, 135, 54,0.8)','rgba(252, 135, 54,0.8)','rgba(252, 135, 54,0.8)',
+                    'rgba(252, 135, 54,0.8)','rgba(252, 135, 54,0.8)','rgba(252, 135, 54,0.8)','rgba(252, 135, 54,0.8)'
+                ],
+                borderColor: [
+                    'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)',
+                    'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)'
+                ],
+                borderWidth: 0.5
+                },
+            {
+                datalabels: {
+                    display: false
+                },
+                label: ['Social'],
+                data: [{{result['session_category']['present'][0]['Social']}},{{result['session_category']['present'][1]['Social']}},
+                {{result['session_category']['present'][2]['Social']}},{{result['session_category']['present'][3]['Social']}},
+                {{result['session_category']['present'][4]['Social']}},{{result['session_category']['present'][5]['Social']}},
+                {{result['session_category']['present'][6]['Social']}},{{result['session_category']['present'][7]['Social']}}],
+                backgroundColor: [
+                    'rgba(22, 152, 31, 0.8)','rgba(22, 152, 31, 0.8)','rgba(22, 152, 31, 0.8)','rgba(22, 152, 31, 0.8)',
+                    'rgba(22, 152, 31, 0.8)','rgba(22, 152, 31, 0.8)','rgba(22, 152, 31, 0.8)','rgba(22, 152, 31, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)',
+                    'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)'
+                ],
+                borderWidth: 0.5
+                },
+            {
+                datalabels: {
+                    display: false
+                },
+                label: ['Paid Search'],
+                data: [{{result['session_category']['present'][0]['Paid Search']}},{{result['session_category']['present'][1]['Paid Search']}},
+                {{result['session_category']['present'][2]['Paid Search']}},{{result['session_category']['present'][3]['Paid Search']}},
+                {{result['session_category']['present'][4]['Paid Search']}},{{result['session_category']['present'][5]['Paid Search']}},
+                {{result['session_category']['present'][6]['Paid Search']}},{{result['session_category']['present'][7]['Paid Search']}}],
+                backgroundColor: [
+                    'rgba(218, 14, 247, 0.8)','rgba(218, 14, 247, 0.8)','rgba(218, 14, 247, 0.8)','rgba(218, 14, 247, 0.8)',
+                    'rgba(218, 14, 247, 0.8)','rgba(218, 14, 247, 0.8)','rgba(218, 14, 247, 0.8)','rgba(218, 14, 247, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)',
+                    'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)'
+                ],
+                borderWidth: 0.5
+                },
+                {
+                label: ['Email'],
+                labels: [{% for item in result['sessions'] %}
+                    {%if item['Country'] != 'Total' %}
+                  "{{((item['Current']|int /result['sessions'][-1]['Current']|int) * 100)|round(2) }}",
+                  {% endif %}
+                  {% endfor %}],
+                data: [{{result['session_category']['present'][0]['Email']}},{{result['session_category']['present'][1]['Email']}},
+                {{result['session_category']['present'][2]['Email']}},{{result['session_category']['present'][3]['Email']}},
+                {{result['session_category']['present'][4]['Email']}},{{result['session_category']['present'][5]['Email']}},
+                {{result['session_category']['present'][6]['Email']}},{{result['session_category']['present'][7]['Email']}}],
+                backgroundColor: [
+                    'rgba(1, 169, 214, 0.8)','rgba(1, 169, 214, 0.8)','rgba(1, 169, 214, 0.8)','rgba(1, 169, 214, 0.8)',
+                    'rgba(1, 169, 214, 0.8)','rgba(1, 169, 214, 0.8)','rgba(1, 169, 214, 0.8)','rgba(1, 169, 214, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)',
+                    'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)'
+                ],
+                borderWidth: 0.5
+                },
+            ]
+        },
+    options: {
+        plugins: {
+              datalabels: {
+                formatter: function(value, context) {
+                    return context.dataset.labels[context.dataIndex] + '%';
+                },
+                align: 'end',
+                anchor: 'end',
+                backgroundColor: null,
+                borderColor: null,
+                borderRadius: 4,
+                borderWidth: 1,
+                color:'#6b6a66',
+                font: {
+                  size: 12,
+                  weight: 600
+                },
+                offset: 0,
+                padding: 0,
+              }
+            },
+        title: {
+			display: false,
+			text: 'Traffic by Geo'
+			},
+        tooltips: {
+                    mode: 'index',
+                },
+        scales: {
+            yAxes: [{
+                stacked: true,
+                gridLines: {
+                    display:true
+                }
+            }],
+            xAxes: [{
+                stacked: true,
+                gridLines: {
+                    display:false
+                },
+            }]
+        }
+    }
+});
+var ctx6 = document.getElementById('myChart-6').getContext('2d');
+var myChart6 = new Chart(ctx6, {
+   type: 'line',
+   data: {
+     labels: ['W1', 'W2', 'W3', 'W4'],
+     datasets: [{
+       label: 'Organic Search',
+       backgroundColor: 'rgba(51, 100, 255, 0.8)',
+       borderColor: 'rgba(51, 100, 255, 0.8)',
+       data: [
+         {{lineresults['session_category_line1']['Organic Search'].split('%')[0]}},
+         {{lineresults['session_category_line2']['Organic Search'].split('%')[0]}},
+         {{lineresults['session_category_line3']['Organic Search'].split('%')[0]}},
+         {{lineresults['session_category_line4']['Organic Search'].split('%')[0]}},
+       ],
+       fill: false,
+     }, {
+       label: 'Direct',
+       fill: false,
+       backgroundColor: 'rgba(255, 49, 49, 0.8)',
+       borderColor: 'rgba(255, 49, 49, 0.8)',
+       data: [
+         {{lineresults['session_category_line1']['Direct'].split('%')[0]}},
+         {{lineresults['session_category_line2']['Direct'].split('%')[0]}},
+         {{lineresults['session_category_line3']['Direct'].split('%')[0]}},
+         {{lineresults['session_category_line4']['Direct'].split('%')[0]}},
+       ],
+     }, {
+       label: 'Referral',
+       backgroundColor: 'rgba(252, 135, 54,0.8)',
+       borderColor: 'rgba(252, 135, 54,0.8)',
+       data: [
+         {{lineresults['session_category_line1']['Referral'].split('%')[0]}},
+         {{lineresults['session_category_line2']['Referral'].split('%')[0]}},
+         {{lineresults['session_category_line3']['Referral'].split('%')[0]}},
+         {{lineresults['session_category_line4']['Referral'].split('%')[0]}},
+       ],
+       fill: false,
+     }, {
+       label: 'Social',
+       backgroundColor: 'rgba(22, 152, 31, 0.5)',
+       borderColor: 'rgba(22, 152, 31, 0.5)',
+       data: [
+         {{lineresults['session_category_line1']['Social'].split('%')[0]}},
+         {{lineresults['session_category_line2']['Social'].split('%')[0]}},
+         {{lineresults['session_category_line3']['Social'].split('%')[0]}},
+         {{lineresults['session_category_line4']['Social'].split('%')[0]}},
+       ],
+       fill: false,
+     }, {
+       label: 'Paid Search',
+       backgroundColor: 'rgba(218, 14, 247, 0.8)',
+       borderColor: 'rgba(218, 14, 247, 0.8)',
+       data: [
+         {{lineresults['session_category_line1']['Paid Search'].split('%')[0]}},
+         {{lineresults['session_category_line2']['Paid Search'].split('%')[0]}},
+         {{lineresults['session_category_line3']['Paid Search'].split('%')[0]}},
+         {{lineresults['session_category_line4']['Paid Search'].split('%')[0]}},
+       ],
+       fill: false,
+     }, {
+       label: 'Email',
+       backgroundColor: 'rgba(1, 169, 214, 0.8)',
+       borderColor: 'rgba(1, 169, 214, 0.8)',
+       data: [
+         {{lineresults['session_category_line1']['Email'].split('%')[0]}},
+         {{lineresults['session_category_line2']['Email'].split('%')[0]}},
+         {{lineresults['session_category_line3']['Email'].split('%')[0]}},
+         {{lineresults['session_category_line4']['Email'].split('%')[0]}},
+       ],
+       fill: false,
+     }]
+   },
+   options: {
+     plugins:{
+         datalabels: {
+                   display: false,
+               },
+     },
+     responsive: true,
+     title: {
+       display: false,
+       text: 'Monthly Traffic Performance (% Change) By Source'
+     },
+     tooltips: {
+       mode: 'index',
+     },
+     hover: {
+       mode: 'nearest',
+       intersect: true
+     },
+     scales: {
+       xAxes: [{
+         display: true,
+         scaleLabel: {
+           display: true,
+           labelString: "{{MonthNames2[1]}} vs {{MonthNames2[0]}}",
+         }
+       }],
+       yAxes: [{
+         ticks: {
+                 stepSize: 10,
+                 },
+         display: true,
+         scaleLabel: {
+           display: true,
+         }
+       }]
+     }
+   }
+ });
+var ctx8 = document.getElementById("myChart-8").getContext('2d');
+var myChart8 = new Chart(ctx8,{
+   type: 'line',
+   data: {
+     labels: ['W1', 'W2', 'W3', 'W4'],
+     datasets: [{
+       label: 'UK',
+       backgroundColor: 'rgba(51, 100, 255, 0.8)',
+       borderColor: 'rgba(51, 100, 255, 0.8)',
+       data: [
+         {{lineregionresults['session_line1'][0]['Change'].split('%')[0]}},
+         {{lineregionresults['session_line2'][0]['Change'].split('%')[0]}},
+         {{lineregionresults['session_line3'][0]['Change'].split('%')[0]}},
+         {{lineregionresults['session_line4'][0]['Change'].split('%')[0]}},
+       ],
+       fill: false,
+     }, {
+       label: 'USA',
+       fill: false,
+       backgroundColor: 'rgba(255, 49, 49, 0.8)',
+       borderColor: 'rgba(255, 49, 49, 0.8)',
+       data: [
+           {{lineregionresults['session_line1'][1]['Change'].split('%')[0]}},
+           {{lineregionresults['session_line2'][1]['Change'].split('%')[0]}},
+           {{lineregionresults['session_line3'][1]['Change'].split('%')[0]}},
+           {{lineregionresults['session_line4'][1]['Change'].split('%')[0]}},
+       ],
+     }, {
+       label: 'France',
+       backgroundColor: 'rgba(252, 135, 54,0.8)',
+       borderColor: 'rgba(252, 135, 54,0.8)',
+       data: [
+           {{lineregionresults['session_line1'][2]['Change'].split('%')[0]}},
+           {{lineregionresults['session_line2'][2]['Change'].split('%')[0]}},
+           {{lineregionresults['session_line3'][2]['Change'].split('%')[0]}},
+           {{lineregionresults['session_line4'][2]['Change'].split('%')[0]}},
+       ],
+       fill: false,
+     }, {
+       label: 'China',
+       backgroundColor: 'rgba(110, 234, 70,0.8)',
+       borderColor: 'rgba(110, 234, 70,0.8)',
+       data: [
+           {{lineregionresults['session_line1'][3]['Change'].split('%')[0]}},
+           {{lineregionresults['session_line2'][3]['Change'].split('%')[0]}},
+           {{lineregionresults['session_line3'][3]['Change'].split('%')[0]}},
+           {{lineregionresults['session_line4'][3]['Change'].split('%')[0]}},
+       ],
+       fill: false,
+     },{
+       label: 'India',
+       backgroundColor: 'rgba(234, 70, 194,0.8)',
+       borderColor: 'rgba(234, 70, 194,0.8)',
+       data: [
+           {{lineregionresults['session_line1'][4]['Change'].split('%')[0]}},
+           {{lineregionresults['session_line2'][4]['Change'].split('%')[0]}},
+           {{lineregionresults['session_line3'][4]['Change'].split('%')[0]}},
+           {{lineregionresults['session_line4'][4]['Change'].split('%')[0]}},
+       ],
+       fill: false,
+     },
+     {
+       label: 'SEA',
+       backgroundColor: 'rgba(22, 152, 31, 0.5)',
+       borderColor: 'rgba(22, 152, 31, 0.5)',
+       data: [
+           {{lineregionresults['session_line1'][5]['Change'].split('%')[0]}},
+           {{lineregionresults['session_line2'][5]['Change'].split('%')[0]}},
+           {{lineregionresults['session_line3'][5]['Change'].split('%')[0]}},
+           {{lineregionresults['session_line4'][5]['Change'].split('%')[0]}},
+       ],
+       fill: false,
+     }, {
+       label: 'ANZ',
+       backgroundColor: 'rgba(218, 14, 247, 0.8)',
+       borderColor: 'rgba(218, 14, 247, 0.8)',
+       data: [
+           {{lineregionresults['session_line1'][6]['Change'].split('%')[0]}},
+           {{lineregionresults['session_line2'][6]['Change'].split('%')[0]}},
+           {{lineregionresults['session_line3'][6]['Change'].split('%')[0]}},
+           {{lineregionresults['session_line4'][6]['Change'].split('%')[0]}},
+       ],
+       fill: false,
+     }, {
+       label: 'ROW',
+       backgroundColor: 'rgba(1, 169, 214, 0.8)',
+       borderColor: 'rgba(1, 169, 214, 0.8)',
+       data: [
+           {{lineregionresults['session_line1'][7]['Change'].split('%')[0]}},
+           {{lineregionresults['session_line2'][7]['Change'].split('%')[0]}},
+           {{lineregionresults['session_line3'][7]['Change'].split('%')[0]}},
+           {{lineregionresults['session_line4'][7]['Change'].split('%')[0]}},
+       ],
+       fill: false,
+     }]
+   },
+   options: {
+     plugins:{
+         datalabels: {
+                   display: false,
+               },
+     },
+     responsive: true,
+     title: {
+       display: false,
+       text: 'Monthly Traffic Performance (% Change) By Region'
+     },
+    tooltips: {
+        mode: 'index',
+     },
+     scales: {
+       xAxes: [{
+
+         display: true,
+         scaleLabel: {
+
+           display: true,
+           labelString: "{{MonthNames2[1]}} vs {{MonthNames2[0]}}",
+         }
+       }],
+       yAxes: [{
+         ticks: {
+                 stepSize: 10,
+                 },
+         display: true,
+         scaleLabel: {
+
+           display: true,
+           labelString: 'Values'
+         }
+       }]
+     }
+   }
+});
+var barChartData = {
+        labels: ['UK', 'USA', 'France', 'China', 'India', 'SEA', 'ANZ','ROW'],
+        datasets: [{
+            label: 'Organic Search',
+            backgroundColor: [
+               'rgba(51, 100, 255, 0.8)','rgba(51, 100, 255, 0.8)','rgba(51, 100, 255, 0.8)','rgba(51, 100, 255, 0.8)',
+               'rgba(51, 100, 255, 0.8)','rgba(51, 100, 255, 0.8)','rgba(51, 100, 255, 0.8)','rgba(51, 100, 255, 0.8)'],
+            borderColor: [
+               'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)',
+               'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)'],
+            borderWidth: 0.5,
+            data: {{ Change['Organic Search'] }}
+        }, {
+            label: 'Direct',
+            backgroundColor: [
+               'rgba(255, 49, 49, 0.8)','rgba(255, 49, 49, 0.8)','rgba(255, 49, 49, 0.8)','rgba(255, 49, 49, 0.8)',
+               'rgba(255, 49, 49, 0.8)','rgba(255, 49, 49, 0.8)','rgba(255, 49, 49, 0.8)','rgba(255, 49, 49, 0.8)'],
+            borderColor: [
+               'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)',
+               'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)'],
+            borderWidth: 0.5,
+            data: {{ Change['Direct'] }}
+        }, {
+            label: 'Referral',
+            backgroundColor: [
+               'rgba(252, 135, 54,0.8)','rgba(252, 135, 54,0.8)','rgba(252, 135, 54,0.8)','rgba(252, 135, 54,0.8)',
+               'rgba(252, 135, 54,0.8)','rgba(252, 135, 54,0.8)','rgba(252, 135, 54,0.8)','rgba(252, 135, 54,0.8)'],
+            borderColor: [
+               'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)',
+               'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)'],
+            borderWidth: 0.5,
+            data: {{ Change['Referral'] }}
+        }, {
+            label: 'Social',
+            backgroundColor: [
+               'rgba(22, 152, 31, 0.5)','rgba(22, 152, 31, 0.5)','rgba(22, 152, 31, 0.5)','rgba(22, 152, 31, 0.5)',
+               'rgba(22, 152, 31, 0.5)','rgba(22, 152, 31, 0.5)','rgba(22, 152, 31, 0.5)','rgba(22, 152, 31, 0.5)'],
+            borderColor: [
+               'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)',
+               'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)'],
+            borderWidth: 0.5,
+            data: {{ Change['Social'] }}
+        }, {
+            label: 'Paid Search',
+            backgroundColor: [
+               'rgba(218, 14, 247, 0.8)','rgba(218, 14, 247, 0.8)','rgba(218, 14, 247, 0.8)','rgba(218, 14, 247, 0.8)',
+               'rgba(218, 14, 247, 0.8)','rgba(218, 14, 247, 0.8)','rgba(218, 14, 247, 0.8)','rgba(218, 14, 247, 0.8)'],
+            borderColor: [
+               'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)',
+               'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)'],
+            borderWidth: 0.5,
+            data: {{ Change['Paid Search'] }}
+        }, {
+            label: 'Email',
+            backgroundColor: [
+               'rgba(1, 169, 214, 0.8)','rgba(1, 169, 214, 0.8)','rgba(1, 169, 214, 0.8)','rgba(1, 169, 214, 0.8)',
+               'rgba(1, 169, 214, 0.8)','rgba(1, 169, 214, 0.8)','rgba(1, 169, 214, 0.8)','rgba(1, 169, 214, 0.8)'],
+            borderColor: [
+               'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)',
+               'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)'],
+            borderWidth: 0.5,
+            data: {{ Change['Email'] }}
+        }]
+
+    };
+var ctx3 = document.getElementById('myChart-3').getContext('2d');
+var myChart3 = new Chart(ctx3, {
+    type: 'bar',
+    data: barChartData,
+    options: {
+        plugins: {
+              datalabels: {
+                display:false,
+                align: 'end',
+                anchor: 'end',
+                backgroundColor: null,
+                borderColor: null,
+                borderRadius: 4,
+                borderWidth: 1,
+                color:'#6b6a66',
+                font: {
+                  size: 11,
+                  weight: 600
+                },
+                offset: 4,
+                padding: 0,
+              }
+            },
+        title: {
+            display: false,
+            text: 'Traffic Performance (% Change) by Region & Source'
+        },
+        tooltips: {
+            mode: 'index',
+        },
+        responsive: true,
+        scales: {
+            xAxes: [{
+                stacked: true,
+            }],
+            yAxes: [{
+                stacked: true,
+                <!--ticks: {-->
+                        <!--max: 80,-->
+                        <!--min: -80,-->
+                    <!--}-->
+            }]
+        }
+    }
+});
+</script>
+{% endblock %}

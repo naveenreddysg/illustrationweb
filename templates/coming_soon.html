@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block topNav %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script>
+    $(function() {
+    var start = moment().subtract(2, 'days').subtract(7,'days');
+    var end = moment().subtract(2, 'days');
+    function cb(start, end) {
+        $('#reportrange').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+    }
+    $('#reportrange').daterangepicker({
+        "minDate": "1/1/2016",
+        maxDate:moment().subtract(2, 'days'),
+        startDate: start,
+        endDate: end,
+        "opens": "center",
+        "alwaysShowCalendars": false,
+    }, cb);
+    cb(start, end);
+});
+$(document).ready(function(){
+    $(".applyBtn").off().on('click', function(){
+        $("#mySelect").val("CustomRange")
+    });
+});
+function func1() {
+  document.getElementById("mySelect").value="7"
+};
+window.onload=func1;
+</script>
+<div class="row">
+    <div>
+        <form class="form-inline" method="post" action="/">
+          <div class="form-group mb-2">
+              <label class="lb"><b>SELECT DATES:&nbsp;</b></label>
+              <select style="width:200px;border-color:#EB1414 !important" class="form-control sl"  name="option" onChange="myFunction()" id="mySelect">
+                <option value="7">Last 7 days</option>
+                <option value="30">This Month (Last 4 Weeks)</option>
+                <option value="LastMonth">Prev. Month</option>
+                <option value="LastMonthPrevYear">Prev. Month of Past Year</option>
+                <option value="12">Last 12 Months</option>
+                <option value="LastYear">Last Year</option>
+                <option value="CustomRange">Custom Range</option>
+              </select>
+          </div>
+          <div id="demo" class="form-group "><input class="form-rounded" name="dates" id="reportrange" readonly/></div>
+          <button style="margin:10px" type="submit" class="btn btn-danger">Submit</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+{% block content %}
+<h1 style="text-align:center">Sorry!, we are working on it!<br/>
+    This feature will update soon</h1>
+{% endblock %}

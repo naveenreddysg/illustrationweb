@@ -1,0 +1,21 @@
+#reportrange{
+    border-radius:5px;
+    border-color:#EB1414 !important;
+    text-align:center;
+    cursor: pointer;
+    padding: 6.6px;
+    margin:12px 0px 10px 5px;
+    border: 1px solid;
+    width:200px;
+    color:#000000;
+}
+.lb{
+    margin:10px 2px 10px 2px;
+    font-weight: 600;
+    font-style: italic;
+    color: #e13441;
+}
+.sl{
+    border-color:#EB1414 !important;
+    color:#000000 !important;
+}

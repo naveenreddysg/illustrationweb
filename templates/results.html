@@ -1,0 +1,36 @@
+<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+<div align="center">
+<form method="post" action="/" name="form1">
+<input name="dates" id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc;width:auto" readonly/>
+<input type="submit" value="submit"/>
+</form>
+</div>
+<script type="text/javascript">
+$(function() {
+
+    var start = "{{pre_start}}";
+    var end = "{{pre_end}}";
+    function cb(start, end) {
+        $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+    }
+    $('#reportrange').daterangepicker({
+        "minDate": "1/1/2016",
+        maxDate:moment().subtract(2, 'days'),
+        startDate: start,
+        endDate: end,
+        "opens": "center",
+        ranges: {
+           'Last 7 Days': [moment().subtract(6, 'days').subtract(2, 'days'), moment().subtract(2, 'days')],
+           'Last 30 Days': [moment().subtract(29, 'days').subtract(2, 'days'), moment().subtract(2, 'days')],
+           'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+           'Last 12 Months': [moment().subtract(1,'month').endOf('months').startOf('months').subtract(1,'years'), moment().subtract(1,'month').endOf('months')],
+           'Last Year': [moment().startOf('years').subtract(1, 'days').startOf('years'), moment().startOf('years').subtract(1, 'days')]
+        }
+    }, cb);
+    cb(start, end);
+});
+
+</script>

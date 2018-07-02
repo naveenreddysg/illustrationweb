@@ -4,11 +4,13 @@ import os
 import flask
 import requests
 
+from datetime import timedelta, datetime as day
 from get_data import mainClass
 from ResultServices.results import SessionsCategoryResults, WebsiteTrafficResults, BounceRateResults, AvgSessionDuration,Conversions
 from utilities import (
     get_dates, get12months, change, get_two_month_dates, prev_month_last_year,  last_year, credentials_to_dict
 )
+from flask import Flask, render_template, redirect, session, url_for, jsonify, request
 
 import google.oauth2.credentials
 import google_auth_oauthlib.flow
@@ -33,7 +35,7 @@ app = flask.Flask(__name__)
 app.secret_key = 'sdvnkcklasdhuv.bfvlduvhldfbvbfkvmfnbv'
 
 
-@app.route('/')
+@app.route('/', methods=["GET", "POST"])
 def index():
   if 'credentials' not in flask.session:
     return flask.redirect('authorize')
@@ -43,30 +45,71 @@ def index():
 
   service = googleapiclient.discovery.build(
       API_SERVICE_NAME, API_VERSION, credentials=credentials)
+  try:
+      dates = request.form.to_dict()
+  except:
+      dates = {}
+  try:
+      if dates == {} or dates['option'] == "7":
+          option = 'Last 7 days'
+          dates = get_dates(7)
+          present = mainClass(dates[0]['pre_start'], dates[0]['pre_end'], service)
+          previous = mainClass(dates[0]['prv_start'], dates[0]['prv_end'], service)
+          sessions = SessionsCategoryResults(present, previous, 'date').main()
+          conversions = Conversions(present, previous, 'month').main()
+          traffic = WebsiteTrafficResults(present, previous, 'date').main()
+          bouncerate = BounceRateResults(present, previous).main()
+          avgduration = AvgSessionDuration(present, previous).main()
+          result = {
+              "sessions": sessions['totalSessions'],
+              "session_category": sessions['sessions']['present'],
+              'traffic': traffic,
+              'conversions': conversions,
+              'session_category_line_data': sessions['session_category_line_data'],
+              'session_region_line_data': sessions['session_region_line_data'],
+              'bouncerate': bouncerate,
+              'avgduration': avgduration,
+          }
+          AllVisitors_pre, AllVisitors_prev, MobileTablet_pre, MobileTablet_prev, Return_pre, Return_prev = [], [], [], [], [], []
+          for item1, item2 in zip(result['traffic']['AllTraffic']['present'][0:30],
+                                  result['traffic']['AllTraffic']['previous'][0:30]):
+              AllVisitors_pre.append(item1["All Traffic"])
+              AllVisitors_prev.append(item2["All Traffic"])
+          for item3, item4 in zip(result['traffic']['MobileTabletTraffic']['present'][0:30],
+                                  result['traffic']['MobileTabletTraffic']['previous'][0:30]):
+              MobileTablet_pre.append(item3['traffic'])
+              MobileTablet_prev.append(item4['traffic'])
+          for item5, item6 in zip(result['traffic']['returningusers']['present'][0:30],
+                                  result['traffic']['returningusers']['previous'][0:30]):
+              Return_pre.append(item5['traffic'])
+              Return_prev.append(item6['traffic'])
+          visitors = {'visits': sum(AllVisitors_pre), 'change_visits': round(
+              ((float(sum(AllVisitors_pre)) - float(sum(AllVisitors_prev))) / float(sum(AllVisitors_prev))) * 100, 2),
+                      'MobileTablet_visits': sum(MobileTablet_pre), 'change_MobileTablet_visits': round(((float(
+                  sum(MobileTablet_pre)) - float(sum(MobileTablet_prev))) / float(sum(MobileTablet_prev))) * 100, 2),
+                      'Return_visits': sum(Return_pre), 'change_Return_visits': round(
+                  ((float(sum(Return_pre)) - float(sum(Return_prev))) / float(sum(Return_prev))) * 100, 2)
+                      }
 
-  option = 'Last 7 days'
-  dates = get_dates(7)
-  present = mainClass(dates[0]['pre_start'], dates[0]['pre_end'], service)
-  previous = mainClass(dates[0]['prv_start'], dates[0]['prv_end'], service)
-  sessions = SessionsCategoryResults(present, previous, 'date').main()
-  conversions = Conversions(present, previous, 'month').main()
-  traffic = WebsiteTrafficResults(present, previous, 'date').main()
-  bouncerate = BounceRateResults(present, previous).main()
-  avgduration = AvgSessionDuration(present, previous).main()
-  result = {
-      "sessions": sessions['totalSessions'],
-      "session_category": sessions['sessions']['present'],
-      'traffic': traffic,
-      'conversions': conversions,
-      'session_category_line_data': sessions['session_category_line_data'],
-      'session_region_line_data': sessions['session_region_line_data'],
-      'bouncerate': bouncerate,
-      'avgduration': avgduration,
-  }
+          dates = {
+              'pre_date': dates[1]['pre_start'] + ' to ' + dates[1]['pre_end'],
+              'prev_date': dates[1]['prv_start'] + ' to ' + dates[1]['prv_end']
+          }
 
-  flask.session['credentials'] = credentials_to_dict(credentials)
+          keys = (sessions['sessions']['present'][0].keys())
+          keys = [x for x in keys if x != 'Country']
+          Change = {
+              i: change(source=i, result=sessions['sessions']) for i in keys
+          }
+          days = [((day.now() - timedelta(days=i)).strftime("%A")) for i in range(1, 8)]
 
-  return flask.render_template("result.html", result=result)
+          session['credentials'] = credentials_to_dict(credentials)
+
+          return render_template('last_7_days.html', result=result, dates=dates, Change=Change, option=option,
+                                 days=days, visitors=visitors)
+  except Exception as e:
+      print(e)
+      return render_template("page_500.html")
 
 
 @app.route('/authorize')

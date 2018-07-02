@@ -1,0 +1,2451 @@
+{% extends 'base.html' %}
+{% block topNav %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script>
+$(function() {
+    var start = moment().subtract(1, 'days').subtract(6,'days');
+    var end = moment().subtract(1, 'days');
+    function cb(start, end) {
+        $('#reportrange').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+    }
+    $('#reportrange').daterangepicker({
+        "minDate": "1/1/2016",
+        maxDate:moment().subtract(2, 'days'),
+        startDate: start,
+        endDate: end,
+        "opens": "center",
+        "alwaysShowCalendars": false,
+    }, cb);
+    cb(start, end);
+});
+$(document).ready(function(){
+    $(".applyBtn").off().on('click', function(){
+        $("#mySelect").val("CustomRange")
+    });
+});
+</script>
+<div class="row">
+    <div>
+        <form class="form-inline" method="post" action="/">
+          <div class="form-group mb-2">
+              <label class="lb"><b>SELECT DATES:&nbsp;</b></label>
+              <select style="width:200px;border-color:#EB1414 !important" class="form-control sl"  name="option" onChange="myFunction()" id="mySelect">
+                <option value="7">Last 7 days</option>
+                <option value="30">This Month (Last 4 Weeks)</option>
+                <option value="LastMonth">Prev. Month</option>
+                <option value="LastMonthPrevYear">Prev. Month of Past Year</option>
+                <option value="12">Last 12 Months</option>
+                <option value="LastYear">Last Year</option>
+                <option value="CustomRange">Custom Range</option>
+              </select>
+          </div>
+          <div id="demo" class="form-group "><input class="form-rounded" name="dates" id="reportrange" readonly/></div>
+          <button style="margin:10px" type="submit" class="btn btn-danger">Submit</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+{% block content %}
+<div  style="text-align:center;margin: 70px 10px 20px 10px;">
+  <h3>Your Website Traffic Snapshots for {{option}}</h3>
+  <p><font size="2"><b>({{dates['pre_date']}})</b></font> vs <font size="2"><b>({{dates['prev_date']}})</b></font></p>
+</div>
+<div class="row">
+<div class="col-md-12 col-sm-12 col-xs-12">
+    <div class="row x_title">
+      <div class="" role="tabpanel" data-example-id="togglable-tabs">
+          <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
+            <li role="presentation" class="active"><a href="#tab_content1" id="All-Traffic" role="tab" data-toggle="tab" aria-expanded="true">All Traffic</a></li>
+            <li role="presentation" class=""><a href="#tab_content2" role="tab" id="Search-Traffic" data-toggle="tab" aria-expanded="false">Search Traffic</a></li>
+            <li role="presentation" class=""><a href="#tab_content3" id="Direct-Traffic" role="tab" data-toggle="tab" aria-expanded="true">Direct Traffic</a></li>
+            <li role="presentation" class=""><a href="#tab_content4" role="tab" id="Referral-Traffic" data-toggle="tab" aria-expanded="false">Referral Traffic</a></li>
+            <li role="presentation" class=""><a href="#tab_content5" role="tab" id="Ad-Traffic" data-toggle="tab" aria-expanded="false">Ad Traffic</a></li>
+            <li role="presentation" class=""><a href="#tab_content6" id="Social-Traffic" role="tab" data-toggle="tab" aria-expanded="true">Social Traffic</a></li>
+            <li role="presentation" class=""><a href="#tab_content7" role="tab" id="Email-Traffic" data-toggle="tab" aria-expanded="false">Email Traffic</a></li>
+            <li role="presentation" class=""><a href="#tab_content8" role="tab" id="Mobile+Tablet-Traffic" data-toggle="tab" aria-expanded="false">Mobile+Tablet Traffic</a></li>
+            <li role="presentation" class=""><a href="#tab_content9" role="tab" id="Returning-Users" data-toggle="tab" aria-expanded="false">Return Users</a></li>
+          </ul>
+          <div class="dashboard_graph" style="margin: -14px 0px -6px 0px !important;">
+              <div id="myTabContent" class="tab-content">
+                <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="All-Traffic">
+                    <canvas id="myChart1" height="90"></canvas>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="Search-Traffic">
+                    <canvas id="myChart2" height="90"></canvas>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tab_content3" aria-labelledby="AdTraffic">
+                  <canvas id="myChart3" height="90"></canvas>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tab_content4" aria-labelledby="Social Traffic">
+                  <div class="container">
+                      <canvas id="myChart4" height="90"></canvas>
+                  </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tab_content5" aria-labelledby="Email Traffic">
+                  <canvas id="myChart5" height="90"></canvas>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tab_content6" aria-labelledby="Mobile+Tablet Traffic">
+                  <canvas id="myChart6" height="90"></canvas>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tab_content7" aria-labelledby="Returning Users">
+                  <canvas id="myChart7" height="90"></canvas>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tab_content8" aria-labelledby="Search-Traffic">
+                    <canvas id="myChart8" height="90"></canvas>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tab_content9" aria-labelledby="AdTraffic">
+                  <canvas id="myChart9" height="90"></canvas>
+                </div>
+              </div>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row">
+<div class="col-md-12 col-sm-12 col-xs-12">
+    <div class="row x_title">
+      <div class="" role="tabpanel" data-example-id="togglable-tabs">
+          <ul id="myTab1" class="nav nav-tabs bar_tabs" role="tablist">
+            <li role="presentation" class="active"><a href="#tabcontent1" id="UK" role="tab" data-toggle="tab" aria-expanded="true">UK</a></li>
+            <li role="presentation" class=""><a href="#tabcontent2" role="tab" id="US" data-toggle="tab" aria-expanded="false">US</a></li>
+            <li role="presentation" class=""><a href="#tabcontent3" id="France" role="tab" data-toggle="tab" aria-expanded="true">France</a></li>
+            <li role="presentation" class=""><a href="#tabcontent4" role="tab" id="China" data-toggle="tab" aria-expanded="false">China</a></li>
+            <li role="presentation" class=""><a href="#tabcontent5" role="tab" id="India" data-toggle="tab" aria-expanded="false">India</a></li>
+            <li role="presentation" class=""><a href="#tabcontent6" id="SEA" role="tab" data-toggle="tab" aria-expanded="true">SEA</a></li>
+            <li role="presentation" class=""><a href="#tabcontent7" role="tab" id="ANZ" data-toggle="tab" aria-expanded="false">ANZ</a></li>
+            <li role="presentation" class=""><a href="#tabcontent8" role="tab" id="ROW" data-toggle="tab" aria-expanded="false">ROW</a></li>
+          </ul>
+          <div class="dashboard_graph" style="margin: -14px 0px -6px 0px !important;">
+              <div id="myTab1Content" class="tab-content">
+                <div role="tabpanel" class="tab-pane fade active in" id="tabcontent1" aria-labelledby="UK">
+                    <canvas id="regionChart1" height="90"></canvas>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tabcontent2" aria-labelledby="US">
+                    <canvas id="regionChart2" height="90"></canvas>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tabcontent3" aria-labelledby="France">
+                  <canvas id="regionChart3" height="90"></canvas>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tabcontent4" aria-labelledby="China">
+                  <div class="container">
+                      <canvas id="regionChart4" height="90"></canvas>
+                  </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tabcontent5" aria-labelledby="India">
+                  <canvas id="regionChart5" height="90"></canvas>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tabcontent6" aria-labelledby="SEA">
+                  <canvas id="regionChart6" height="90"></canvas>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tabcontent7" aria-labelledby="ANZ">
+                  <canvas id="regionChart7" height="90"></canvas>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tabcontent8" aria-labelledby="ROW">
+                    <canvas id="regionChart8" height="90"></canvas>
+                </div>
+              </div>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="page-title">
+  <div class="title_left">
+    <h3>How did you acquire your users?</h3>
+  </div>
+</div>
+<div class="row">
+    <div class="col-md-6 col-sm-12 col-xs-12">
+        <div class="x_panel">
+          <div class="x_title">
+            <h2>Traffic by Channel</h2>
+            <div class="clearfix"></div>
+          </div>
+          <div class="x_content">
+            <br />
+            <canvas id="myChart-1" width="100%"></canvas>
+          </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-sm-12 col-xs-12">
+        <div class="x_panel">
+          <div class="x_title">
+            <h2>Traffic by Geo</h2>
+            <div class="clearfix"></div>
+          </div>
+          <div class="x_content">
+              <br />
+              <canvas id="myChart-2" width="100%"></canvas>
+          </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12 col-sm-12 col-xs-12">
+        <div class="x_panel">
+          <div class="x_title">
+            <h2>Percent of Traffic by Channel & Region</h2>
+            <div class="clearfix"></div>
+          </div>
+          <div class="x_content">
+              <br />
+              <canvas id="myChart-3" height="90"></canvas>
+          </div>
+        </div>
+    </div>
+</div>
+<div class="page-title">
+  <div class="title_left">
+    <h3>Which Areas Needs Improvement?</h3>
+  </div>
+</div>
+<div class="row">
+    <div class="col-md-12 col-sm-12 col-xs-12">
+        <div class="x_panel">
+          <div class="x_title">
+            <h2>Channel Performance</h2>
+            <div class="clearfix"></div>
+          </div>
+          <div class="x_content">
+              <br />
+              <canvas id="myChart-4" height="90"></canvas>
+          </div>
+        </div>
+    </div>
+</div>
+<div class="page-title">
+  <div class="title_left">
+    <h3>Bounce Rate</h3>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <div class="">
+      <div class="x_content">
+        <div class="row">
+          <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+            <div class="tile-stats">
+              <div class="icon">
+              </div>
+                {% set change = ((result['bouncerate']['present']['MobileTablet']-result['bouncerate']['previous']['MobileTablet'])/result['bouncerate']['previous']['MobileTablet'])*100 %}
+                {% if change > 0 %}
+                <div class="count">{{result['bouncerate']['present']['MobileTablet']|round(2)}}%<img src="static/images/arrowdown.png" height="35"/><font size="4">{{change|round(2)}}%</font></div>
+                {% else %}
+                <div class="count">{{result['bouncerate']['present']['MobileTablet']|round(2)}}%<img src="static/images/arrowup.png" height="35"/><font size="4">{{((change|round(2))|string).split("-")[1]}}%</font></div>
+                {% endif %}
+              <h3>Mobile+Tablet</h3>
+            </div>
+          </div>
+          <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+            <div class="tile-stats">
+              <div class="icon">
+              </div>
+              {% set change = ((result['bouncerate']['present']['Organic Search']-result['bouncerate']['previous']['Organic Search'])/result['bouncerate']['previous']['Organic Search'])*100 %}
+                {% if change > 0 %}
+                <div class="count">{{result['bouncerate']['present']['Organic Search']|round(2)}}%<img src="static/images/arrowdown.png" height="35"/><font size="4">{{change|round(2)}}%</font></div>
+                {% else %}
+                <div class="count">{{result['bouncerate']['present']['Organic Search']|round(2)}}%<img src="static/images/arrowup.png" height="35"/><font size="4">{{((change|round(2))|string).split("-")[1]}}%</font></div>
+                {% endif %}
+              <h3>Search</h3>
+            </div>
+          </div>
+          <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+            <div class="tile-stats">
+              <div class="icon">
+              </div>
+              {% set change = ((result['bouncerate']['present']['Email']-result['bouncerate']['previous']['Email'])/result['bouncerate']['previous']['Email'])*100 %}
+                {% if change > 0 %}
+                <div class="count">{{result['bouncerate']['present']['Email']|round(2)}}%<img src="static/images/arrowdown.png" height="35"/><font size="4">{{change|round(2)}}%</font></div>
+                {% else %}
+                <div class="count">{{result['bouncerate']['present']['Email']|round(2)}}%<img src="static/images/arrowup.png" height="35"/><font size="4">{{((change|round(2))|string).split("-")[1]}}%</font></div>
+                {% endif %}
+              <h3>Email</h3>
+            </div>
+          </div>
+          <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+            <div class="tile-stats">
+              <div class="icon">
+              </div>
+              {% set change = ((result['bouncerate']['present']['Paid Search']-result['bouncerate']['previous']['Paid Search'])/result['bouncerate']['previous']['Paid Search'])*100 %}
+                {% if change > 0 %}
+                <div class="count">{{result['bouncerate']['present']['Paid Search']|round(2)}}%<img src="static/images/arrowdown.png" height="35"/><font size="4">{{change|round(2)}}%</font></div>
+                {% else %}
+                <div class="count">{{result['bouncerate']['present']['Paid Search']|round(2)}}%<img src="static/images/arrowup.png" height="35"/><font size="4">{{((change|round(2))|string).split("-")[1]}}%</font></div>
+                {% endif %}
+              <h3>Paid</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-12">
+    <div class="">
+      <div class="x_content">
+        <div class="row">
+          <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+            <div class="tile-stats">
+              <div class="icon">
+              </div>
+              {% set change = ((result['bouncerate']['present']['Social']-result['bouncerate']['previous']['Social'])/result['bouncerate']['previous']['Social'])*100 %}
+                {% if change > 0 %}
+                <div class="count">{{result['bouncerate']['present']['Social']|round(2)}}%<img src="static/images/arrowdown.png" height="35"/><font size="4">{{change|round(2)}}%</font></div>
+                {% else %}
+                <div class="count">{{result['bouncerate']['present']['Social']|round(2)}}%<img src="static/images/arrowup.png" height="35"/><font size="4">{{((change|round(2))|string).split("-")[1]}}%</font></div>
+                {% endif %}
+              <h3>Social</h3>
+            </div>
+          </div>
+          <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+            <div class="tile-stats">
+              <div class="icon">
+              </div>
+              {% set change = ((result['bouncerate']['present']['Direct']-result['bouncerate']['previous']['Direct'])/result['bouncerate']['previous']['Direct'])*100 %}
+                {% if change > 0 %}
+                <div class="count">{{result['bouncerate']['present']['Direct']|round(2)}}%<img src="static/images/arrowdown.png" height="35"/><font size="4">{{change|round(2)}}%</font></div>
+                {% else %}
+                <div class="count">{{result['bouncerate']['present']['Direct']|round(2)}}%<img src="static/images/arrowup.png" height="35"/><font size="4">{{((change|round(2))|string).split("-")[1]}}%</font></div>
+                {% endif %}
+              <h3>Direct</h3>
+            </div>
+          </div>
+          <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+            <div class="tile-stats">
+              <div class="icon">
+              </div>
+              {% set change = ((result['bouncerate']['present']['Referral']-result['bouncerate']['previous']['Referral'])/result['bouncerate']['previous']['Referral'])*100 %}
+                {% if change > 0 %}
+                <div class="count">{{result['bouncerate']['present']['Referral']|round(2)}}%<img src="static/images/arrowdown.png" height="35"/><font size="4">{{change|round(2)}}%</font></div>
+                {% else %}
+                <div class="count">{{result['bouncerate']['present']['Referral']|round(2)}}%<img src="static/images/arrowup.png" height="35"/><font size="4">{{((change|round(2))|string).split("-")[1]}}%</font></div>
+                {% endif %}
+              <h3>Referral</h3>
+            </div>
+          </div>
+          <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+            <div class="tile-stats">
+              <div class="icon">
+              </div>
+              {% set change = ((result['bouncerate']['present']['UK']-result['bouncerate']['previous']['UK'])/result['bouncerate']['previous']['UK'])*100 %}
+                {% if change > 0 %}
+                <div class="count">{{result['bouncerate']['present']['UK']|round(2)}}%<img src="static/images/arrowdown.png" height="35"/><font size="4">{{change|round(2)}}%</font></div>
+                {% else %}
+                <div class="count">{{result['bouncerate']['present']['UK']|round(2)}}%<img src="static/images/arrowup.png" height="35"/><font size="4">{{((change|round(2))|string).split("-")[1]}}%</font></div>
+                {% endif %}
+              <h3>UK</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-12">
+    <div class="">
+      <div class="x_content">
+        <div class="row">
+          <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+            <div class="tile-stats">
+              <div class="icon">
+              </div>
+              {% set change = ((result['bouncerate']['present']['US']-result['bouncerate']['previous']['US'])/result['bouncerate']['previous']['US'])*100 %}
+                {% if change > 0 %}
+                <div class="count">{{result['bouncerate']['present']['US']|round(2)}}%<img src="static/images/arrowdown.png" height="35"/><font size="4">{{change|round(2)}}%</font></div>
+                {% else %}
+                <div class="count">{{result['bouncerate']['present']['US']|round(2)}}%<img src="static/images/arrowup.png" height="35"/><font size="4">{{((change|round(2))|string).split("-")[1]}}%</font></div>
+                {% endif %}
+              <h3>USA</h3>
+            </div>
+          </div>
+          <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+            <div class="tile-stats">
+              <div class="icon">
+              </div>
+              {% set change = ((result['bouncerate']['present']['ANZ']-result['bouncerate']['previous']['ANZ'])/result['bouncerate']['previous']['ANZ'])*100 %}
+                {% if change > 0 %}
+                <div class="count">{{result['bouncerate']['present']['ANZ']|round(2)}}%<img src="static/images/arrowdown.png" height="35"/><font size="4">{{change|round(2)}}%</font></div>
+                {% else %}
+                <div class="count">{{result['bouncerate']['present']['ANZ']|round(2)}}%<img src="static/images/arrowup.png" height="35"/><font size="4">{{((change|round(2))|string).split("-")[1]}}%</font></div>
+                {% endif %}
+              <h3>ANZ</h3>
+            </div>
+          </div>
+          <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+            <div class="tile-stats">
+              <div class="icon">
+              </div>
+              {% set change = ((result['bouncerate']['present']['SEA']-result['bouncerate']['previous']['SEA'])/result['bouncerate']['previous']['SEA'])*100 %}
+                {% if change > 0 %}
+                <div class="count">{{result['bouncerate']['present']['SEA']|round(2)}}%<img src="static/images/arrowdown.png" height="35"/><font size="4">{{change|round(2)}}%</font></div>
+                {% else %}
+                <div class="count">{{result['bouncerate']['present']['SEA']|round(2)}}%<img src="static/images/arrowup.png" height="35"/><font size="4">{{((change|round(2))|string).split("-")[1]}}%</font></div>
+                {% endif %}
+              <h3>SEA</h3>
+            </div>
+          </div>
+          <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+            <div class="tile-stats">
+              <div class="icon">
+              </div>
+              {% set change = ((result['bouncerate']['present']['France']-result['bouncerate']['previous']['France'])/result['bouncerate']['previous']['France'])*100 %}
+                {% if change > 0 %}
+                <div class="count">{{result['bouncerate']['present']['France']|round(2)}}%<img src="static/images/arrowdown.png" height="35"/><font size="4">{{change|round(2)}}%</font></div>
+                {% else %}
+                <div class="count">{{result['bouncerate']['present']['France']|round(2)}}%<img src="static/images/arrowup.png" height="35"/><font size="4">{{((change|round(2))|string).split("-")[1]}}%</font></div>
+                {% endif %}
+              <h3>France</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="page-title">
+  <div class="title_left">
+    <h3>Avg. Session Duration</h3>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <div class="">
+      <div class="x_content">
+        <div class="row">
+          <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+            <div class="tile-stats">
+              <div class="icon">
+              </div>
+                {% set change = ((result['avgduration']['present']['MobileTablet']-result['avgduration']['previous']['MobileTablet'])/result['avgduration']['previous']['MobileTablet'])*100 %}
+                {% if change > 0 %}
+                <div class="count">{{result['avgduration']['present']['MobileTablet']|round(2)}}<img src="static/images/arrowdown.png" height="35"/><font size="4">{{change|round(2)}}%</font></div>
+                {% else %}
+                <div class="count">{{result['avgduration']['present']['MobileTablet']|round(2)}}<img src="static/images/arrowup.png" height="35"/><font size="4">{{((change|round(2))|string).split("-")[1]}}%</font></div>
+                {% endif %}
+              <h3>Mobile+Tablet</h3>
+            </div>
+          </div>
+          <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+            <div class="tile-stats">
+              <div class="icon">
+              </div>
+              {% set change = ((result['avgduration']['present']['Organic Search']-result['avgduration']['previous']['Organic Search'])/result['avgduration']['previous']['Organic Search'])*100 %}
+                {% if change > 0 %}
+                <div class="count">{{result['avgduration']['present']['Organic Search']|round(2)}}<img src="static/images/arrowdown.png" height="35"/><font size="4">{{change|round(2)}}%</font></div>
+                {% else %}
+                <div class="count">{{result['avgduration']['present']['Organic Search']|round(2)}}<img src="static/images/arrowup.png" height="35"/><font size="4">{{((change|round(2))|string).split("-")[1]}}%</font></div>
+                {% endif %}
+              <h3>Search</h3>
+            </div>
+          </div>
+          <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+            <div class="tile-stats">
+              <div class="icon">
+              </div>
+              {% set change = ((result['avgduration']['present']['Email']-result['avgduration']['previous']['Email'])/result['avgduration']['previous']['Email'])*100 %}
+                {% if change > 0 %}
+                <div class="count">{{result['avgduration']['present']['Email']|round(2)}}<img src="static/images/arrowdown.png" height="35"/><font size="4">{{change|round(2)}}%</font></div>
+                {% else %}
+                <div class="count">{{result['avgduration']['present']['Email']|round(2)}}<img src="static/images/arrowup.png" height="35"/><font size="4">{{((change|round(2))|string).split("-")[1]}}%</font></div>
+                {% endif %}
+              <h3>Email</h3>
+            </div>
+          </div>
+          <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+            <div class="tile-stats">
+              <div class="icon">
+              </div>
+              {% set change = ((result['avgduration']['present']['Paid Search']-result['avgduration']['previous']['Paid Search'])/result['avgduration']['previous']['Paid Search'])*100 %}
+                {% if change > 0 %}
+                <div class="count">{{result['avgduration']['present']['Paid Search']|round(2)}}<img src="static/images/arrowdown.png" height="35"/><font size="4">{{change|round(2)}}%</font></div>
+                {% else %}
+                <div class="count">{{result['avgduration']['present']['Paid Search']|round(2)}}<img src="static/images/arrowup.png" height="35"/><font size="4">{{((change|round(2))|string).split("-")[1]}}%</font></div>
+                {% endif %}
+              <h3>Paid</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-12">
+    <div class="">
+      <div class="x_content">
+        <div class="row">
+          <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+            <div class="tile-stats">
+              <div class="icon">
+              </div>
+              {% set change = ((result['avgduration']['present']['Social']-result['avgduration']['previous']['Social'])/result['avgduration']['previous']['Social'])*100 %}
+                {% if change > 0 %}
+                <div class="count">{{result['avgduration']['present']['Social']|round(2)}}<img src="static/images/arrowdown.png" height="35"/><font size="4">{{change|round(2)}}%</font></div>
+                {% else %}
+                <div class="count">{{result['avgduration']['present']['Social']|round(2)}}<img src="static/images/arrowup.png" height="35"/><font size="4">{{((change|round(2))|string).split("-")[1]}}%</font></div>
+                {% endif %}
+              <h3>Social</h3>
+            </div>
+          </div>
+          <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+            <div class="tile-stats">
+              <div class="icon">
+              </div>
+              {% set change = ((result['avgduration']['present']['Direct']-result['avgduration']['previous']['Direct'])/result['avgduration']['previous']['Direct'])*100 %}
+                {% if change > 0 %}
+                <div class="count">{{result['avgduration']['present']['Direct']|round(2)}}<img src="static/images/arrowdown.png" height="35"/><font size="4">{{change|round(2)}}%</font></div>
+                {% else %}
+                <div class="count">{{result['avgduration']['present']['Direct']|round(2)}}<img src="static/images/arrowup.png" height="35"/><font size="4">{{((change|round(2))|string).split("-")[1]}}%</font></div>
+                {% endif %}
+              <h3>Direct</h3>
+            </div>
+          </div>
+          <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+            <div class="tile-stats">
+              <div class="icon">
+              </div>
+              {% set change = ((result['avgduration']['present']['Referral']-result['avgduration']['previous']['Referral'])/result['avgduration']['previous']['Referral'])*100 %}
+                {% if change > 0 %}
+                <div class="count">{{result['avgduration']['present']['Referral']|round(2)}}<img src="static/images/arrowdown.png" height="35"/><font size="4">{{change|round(2)}}%</font></div>
+                {% else %}
+                <div class="count">{{result['avgduration']['present']['Referral']|round(2)}}<img src="static/images/arrowup.png" height="35"/><font size="4">{{((change|round(2))|string).split("-")[1]}}%</font></div>
+                {% endif %}
+              <h3>Referral</h3>
+            </div>
+          </div>
+          <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+            <div class="tile-stats">
+              <div class="icon">
+              </div>
+              {% set change = ((result['avgduration']['present']['UK']-result['avgduration']['previous']['UK'])/result['avgduration']['previous']['UK'])*100 %}
+                {% if change > 0 %}
+                <div class="count">{{result['avgduration']['present']['UK']|round(2)}}<img src="static/images/arrowdown.png" height="35"/><font size="4">{{change|round(2)}}%</font></div>
+                {% else %}
+                <div class="count">{{result['avgduration']['present']['UK']|round(2)}}<img src="static/images/arrowup.png" height="35"/><font size="4">{{((change|round(2))|string).split("-")[1]}}%</font></div>
+                {% endif %}
+              <h3>UK</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-12">
+    <div class="">
+      <div class="x_content">
+        <div class="row">
+          <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+            <div class="tile-stats">
+              <div class="icon">
+              </div>
+              {% set change = ((result['avgduration']['present']['US']-result['avgduration']['previous']['US'])/result['avgduration']['previous']['US'])*100 %}
+                {% if change > 0 %}
+                <div class="count">{{result['avgduration']['present']['US']|round(2)}}<img src="static/images/arrowdown.png" height="35"/><font size="4">{{change|round(2)}}%</font></div>
+                {% else %}
+                <div class="count">{{result['avgduration']['present']['US']|round(2)}}<img src="static/images/arrowup.png" height="35"/><font size="4">{{((change|round(2))|string).split("-")[1]}}%</font></div>
+                {% endif %}
+              <h3>USA</h3>
+            </div>
+          </div>
+          <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+            <div class="tile-stats">
+              <div class="icon">
+              </div>
+              {% set change = ((result['avgduration']['present']['ANZ']-result['avgduration']['previous']['ANZ'])/result['avgduration']['previous']['ANZ'])*100 %}
+                {% if change > 0 %}
+                <div class="count">{{result['avgduration']['present']['ANZ']|round(2)}}<img src="static/images/arrowdown.png" height="35"/><font size="4">{{change|round(2)}}%</font></div>
+                {% else %}
+                <div class="count">{{result['avgduration']['present']['ANZ']|round(2)}}<img src="static/images/arrowup.png" height="35"/><font size="4">{{((change|round(2))|string).split("-")[1]}}%</font></div>
+                {% endif %}
+              <h3>ANZ</h3>
+            </div>
+          </div>
+          <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+            <div class="tile-stats">
+              <div class="icon">
+              </div>
+              {% set change = ((result['avgduration']['present']['SEA']-result['avgduration']['previous']['SEA'])/result['avgduration']['previous']['SEA'])*100 %}
+                {% if change > 0 %}
+                <div class="count">{{result['avgduration']['present']['SEA']|round(2)}}<img src="static/images/arrowdown.png" height="35"/><font size="4">{{change|round(2)}}%</font></div>
+                {% else %}
+                <div class="count">{{result['avgduration']['present']['SEA']|round(2)}}<img src="static/images/arrowup.png" height="35"/><font size="4">{{((change|round(2))|string).split("-")[1]}}%</font></div>
+                {% endif %}
+              <h3>SEA</h3>
+            </div>
+          </div>
+          <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+            <div class="tile-stats">
+              <div class="icon">
+              </div>
+              {% set change = ((result['avgduration']['present']['France']-result['avgduration']['previous']['France'])/result['avgduration']['previous']['France'])*100 %}
+                {% if change > 0 %}
+                <div class="count">{{result['avgduration']['present']['France']|round(2)}}<img src="static/images/arrowdown.png" height="35"/><font size="4">{{change|round(2)}}%</font></div>
+                {% else %}
+                <div class="count">{{result['avgduration']['present']['France']|round(2)}}<img src="static/images/arrowup.png" height="35"/><font size="4">{{((change|round(2))|string).split("-")[1]}}%</font></div>
+                {% endif %}
+              <h3>France</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% block Graph %}
+<script>
+var chartData1 = {
+labels: [
+          {% for item in days %}
+              "{{item}}",
+          {% endfor %}
+            ],
+datasets: [{
+ label: 'Change',
+ lineTension: 0,
+ yAxisID: '2ndAxis',
+ type: 'line',
+ datalabels: {
+    formatter: function(value, context) {
+            return context.dataset.data[context.dataIndex] + ' %';
+        }
+        },
+ data: [
+ {% for item1, item2 in result['traffic']['AllTraffic']['present'][0:30]|zip(result['traffic']['AllTraffic']['previous'][0:30]) %}
+    {% if (item2['All Traffic']|int)!=0 %}
+    {% set change = ((((item1['All Traffic']|int)-(item2['All Traffic']|int))/(item2['All Traffic']|int)) * 100)|round(2) %}
+    {% if change > 100 %}
+    "{{100}}",
+    {% else %}
+    "{{change}}",
+    {% endif %}
+    {% else %}
+    "100",
+    {% endif %}
+ {% endfor %}
+ ],
+ fill: false,
+ borderColor: 'rgba(255, 40, 40, 0.8)',
+ backgroundColor: 'rgba(255, 40, 40, 1)',
+ borderWidth: 2
+},{
+   label: 'All Traffic',
+   type: 'bar',
+   data: [
+        {% for item in result['traffic']['AllTraffic']['present'][0:30] %}
+            "{{item['All Traffic']}}",
+        {% endfor %}
+   ],
+   borderColor: 'rgba(127, 182, 255, 0.5)',
+   backgroundColor: 'rgba(127, 182, 255, 1)',
+   borderWidth: 2
+}]
+   };
+var ctx = document.getElementById("myChart1").getContext("2d");
+var myChart = new Chart(ctx, {
+   responsive: true,
+   type: 'bar',
+   data: chartData1,
+   options: {
+       plugins: {
+              datalabels: {
+                align: 'end',
+                anchor: 'end',
+                backgroundColor: null,
+                borderColor: null,
+                borderRadius: 4,
+                borderWidth: 1,
+                color:'#14141f',
+                font: {
+                  size: 11,
+                  weight: 600
+                },
+                offset: 0,
+                padding: 0,
+              }
+            },
+       scales: {
+           yAxes: [{
+               ticks: {
+                   beginAtZero: true
+               },
+               stacked: true
+           }, {
+             type: 'linear',
+             id: '2ndAxis',
+             position: 'right',
+             stacked: true,
+             ticks: {
+               beginAtZero: true
+             }
+           }]
+       }
+   }
+});
+var chartData2 = {
+labels: [
+           {% for item in days %}
+              "{{item}}",
+          {% endfor %}
+          ],
+datasets: [{
+ label: 'Change',
+ lineTension: 0,
+ yAxisID: '2ndAxis',
+ type: 'line',
+  datalabels: {
+    formatter: function(value, context) {
+            return context.dataset.data[context.dataIndex] + ' %';
+        }
+        },
+ data: [
+    {% for i in range(0, result["session_category_line_data"]|length) %}
+    "{{result["session_category_line_data"][i][1]['Organic Search'].split("%")[0]}}",
+    {% endfor %}
+ ],
+ fill: false,
+ borderColor: 'rgba(0, 145, 2, 0.8)',
+ backgroundColor: 'rgba(0, 145, 2, 1)',
+ borderWidth: 2
+},{
+   label: 'Search Traffic',
+   type: 'bar',
+   data: [
+        {% for i in range(0, result["session_category_line_data"]|length) %}
+        "{{result["session_category_line_data"][i][0]['Organic Search']}}",
+        {% endfor %}
+   ],
+   borderColor: 'rgba(247, 235, 126, 0.5)',
+   backgroundColor: 'rgba(247, 235, 126, 1)',
+   borderWidth: 2
+}]
+   };
+var ctx = document.getElementById("myChart2").getContext("2d");
+var myChart = new Chart(ctx, {
+   responsive: true,
+   type: 'bar',
+   data: chartData2,
+   options: {
+       plugins: {
+              datalabels: {
+                align: 'end',
+                anchor: 'end',
+                backgroundColor: null,
+                borderColor: null,
+                borderRadius: 4,
+                borderWidth: 1,
+                color:'#14141f',
+                font: {
+                  size: 11,
+                  weight: 600
+                },
+                offset: 0,
+                padding: 0,
+              }
+            },
+       scales: {
+           yAxes: [{
+               ticks: {
+                   beginAtZero: true
+               },
+               stacked: true
+           }, {
+             type: 'linear',
+             id: '2ndAxis',
+             position: 'right',
+             stacked: true,
+             ticks: {
+               beginAtZero: true
+             }
+           }]
+       }
+   }
+});
+var chartData3 = {
+labels: [
+          {% for item in days %}
+            "{{item}}",
+          {% endfor %}
+            ],
+datasets: [{
+ label: 'Change',
+ lineTension: 0,
+ yAxisID: '2ndAxis',
+ type: 'line',
+  datalabels: {
+    formatter: function(value, context) {
+            return context.dataset.data[context.dataIndex] + ' %';
+        }
+        },
+ data: [
+ {% for i in range(0, result["session_category_line_data"]|length) %}
+    "{{result["session_category_line_data"][i][1]['Direct'].split("%")[0]}}",
+    {% endfor %}
+ ],
+ fill: false,
+ borderColor: 'rgba(255, 114, 0, 0.8)',
+ backgroundColor: 'rgba(255, 114, 0, 1)',
+ borderWidth: 2
+},{
+   label: 'Ad Traffic',
+   type: 'bar',
+   data: [
+        {% for i in range(0, result["session_category_line_data"]|length) %}
+    "{{result["session_category_line_data"][i][0]['Direct']}}",
+    {% endfor %}
+   ],
+   borderColor: 'rgba(150, 255, 246, 0.5)',
+   backgroundColor: 'rgba(150, 255, 246, 1)',
+   borderWidth: 2
+}]
+   };
+var ctx = document.getElementById("myChart3").getContext("2d");
+var myChart = new Chart(ctx, {
+   responsive: true,
+   type: 'bar',
+   data: chartData3,
+   options: {
+       plugins: {
+              datalabels: {
+                align: 'end',
+                anchor: 'end',
+                backgroundColor: null,
+                borderColor: null,
+                borderRadius: 4,
+                borderWidth: 1,
+                color:'#14141f',
+                font: {
+                  size: 11,
+                  weight: 600
+                },
+                offset: 0,
+                padding: 0,
+              }
+            },
+       scales: {
+           yAxes: [{
+               ticks: {
+                   beginAtZero: true
+               },
+               stacked: true
+           }, {
+             type: 'linear',
+             id: '2ndAxis',
+             position: 'right',
+             stacked: true,
+             ticks: {
+               beginAtZero: true
+             }
+           }]
+       }
+   }
+});
+var chartData4 = {
+labels: [
+          {% for item in days %}
+            "{{item}}",
+          {% endfor %}
+            ],
+datasets: [{
+ label: 'Change',
+ lineTension: 0,
+ yAxisID: '2ndAxis',
+ type: 'line',
+ datalabels: {
+    formatter: function(value, context) {
+            return context.dataset.data[context.dataIndex] + ' %';
+        }
+        },
+ data: [
+ {% for i in range(0, result["session_category_line_data"]|length) %}
+    "{{result["session_category_line_data"][i][1]['Referral'].split("%")[0]}}",
+    {% endfor %}
+ ],
+ fill: false,
+ borderColor: 'rgba(7, 113, 193, 0.8)',
+ backgroundColor: 'rgba(7, 113, 193, 1)',
+ borderWidth: 2
+},{
+   label: 'Social Traffic',
+   type: 'bar',
+   data: [
+    {% for i in range(0, result["session_category_line_data"]|length) %}
+    "{{result["session_category_line_data"][i][0]['Referral']}}",
+    {% endfor %}
+   ],
+   borderColor: 'rgba(202, 255, 165, 0.5)',
+   backgroundColor: 'rgba(202, 255, 165, 1)',
+   borderWidth: 2
+}]
+   };
+var ctx = document.getElementById("myChart4").getContext("2d");
+var myChart = new Chart(ctx, {
+   responsive: true,
+   type: 'bar',
+   data: chartData4,
+   options: {
+       plugins: {
+              datalabels: {
+                align: 'end',
+                anchor: 'end',
+                backgroundColor: null,
+                borderColor: null,
+                borderRadius: 4,
+                borderWidth: 1,
+                color:'#14141f',
+                font: {
+                  size: 11,
+                  weight: 600
+                },
+                offset: 0,
+                padding: 0,
+              }
+            },
+       scales: {
+           yAxes: [{
+               ticks: {
+                   beginAtZero: true
+               },
+               stacked: true
+           }, {
+             type: 'linear',
+             id: '2ndAxis',
+             position: 'right',
+             stacked: true,
+             ticks: {
+               beginAtZero: true
+             }
+           }]
+       }
+   }
+});
+var chartData5 = {
+labels: [
+          {% for item in days %}
+            "{{item}}",
+          {% endfor %}
+            ],
+datasets: [{
+ label: 'Change',
+ lineTension: 0,
+ yAxisID: '2ndAxis',
+ type: 'line',
+  datalabels: {
+    formatter: function(value, context) {
+            return context.dataset.data[context.dataIndex] + ' %';
+        }
+        },
+ data: [
+ {% for i in range(0, result["session_category_line_data"]|length) %}
+    "{{result["session_category_line_data"][i][1]['Paid Search'].split("%")[0]}}",
+    {% endfor %}
+ ],
+ fill: false,
+ borderColor: 'rgba(2, 194, 252, 0.8)',
+ backgroundColor: 'rgba(2, 194, 252, 1)',
+ borderWidth: 2
+},{
+   label: 'Ad Traffic',
+   type: 'bar',
+   data: [
+        {% for i in range(0, result["session_category_line_data"]|length) %}
+    "{{result["session_category_line_data"][i][0]['Paid Search']}}",
+    {% endfor %}
+   ],
+   borderColor: 'rgba(255, 153, 178, 0.5)',
+   backgroundColor: 'rgba(255, 153, 178, 1)',
+   borderWidth: 2
+}]
+   };
+var ctx = document.getElementById("myChart5").getContext("2d");
+var myChart = new Chart(ctx, {
+   responsive: true,
+   type: 'bar',
+   data: chartData5,
+   options: {
+       plugins: {
+              datalabels: {
+                align: 'end',
+                anchor: 'end',
+                backgroundColor: null,
+                borderColor: null,
+                borderRadius: 4,
+                borderWidth: 1,
+                color:'#14141f',
+                font: {
+                  size: 11,
+                  weight: 600
+                },
+                offset: 0,
+                padding: 0,
+              }
+            },
+       scales: {
+           yAxes: [{
+               ticks: {
+                   beginAtZero: true
+               },
+               stacked: true
+           }, {
+             type: 'linear',
+             id: '2ndAxis',
+             position: 'right',
+             stacked: true,
+             ticks: {
+               beginAtZero: true
+             }
+           }]
+       }
+   }
+});
+var chartData6 = {
+labels: [
+          {% for item in days %}
+            "{{item}}",
+          {% endfor %}
+          ],
+datasets: [{
+ label: 'Change',
+ lineTension: 0,
+ yAxisID: '2ndAxis',
+ type: 'line',
+ datalabels: {
+    formatter: function(value, context) {
+            return context.dataset.data[context.dataIndex] + ' %';
+        }
+        },
+ data: [
+ {% for i in range(0, result["session_category_line_data"]|length) %}
+    "{{result["session_category_line_data"][i][1]['Social'].split("%")[0]}}",
+    {% endfor %}
+ ],
+ fill: false,
+ borderColor: 'rgba(0, 99, 132, 0.8)',
+ backgroundColor: 'rgba(0, 99, 132, 1)',
+ borderWidth: 2
+},{
+   label: 'Social Traffic',
+   type: 'bar',
+   data: [
+    {% for i in range(0, result["session_category_line_data"]|length) %}
+    "{{result["session_category_line_data"][i][0]['Social']}}",
+    {% endfor %}
+   ],
+   borderColor: 'rgba(176, 231, 252, 0.8)',
+   backgroundColor: 'rgba(176, 231, 252, 1)',
+   borderWidth: 2
+}]
+   };
+var ctx = document.getElementById("myChart6").getContext("2d");
+var myChart = new Chart(ctx, {
+   responsive: true,
+   type: 'bar',
+   data: chartData6,
+   options: {
+       plugins: {
+              datalabels: {
+                align: 'end',
+                anchor: 'end',
+                backgroundColor: null,
+                borderColor: null,
+                borderRadius: 4,
+                borderWidth: 1,
+                color:'#14141f',
+                font: {
+                  size: 11,
+                  weight: 600
+                },
+                offset: 0,
+                padding: 0,
+              }
+            },
+       scales: {
+           yAxes: [{
+               ticks: {
+                   beginAtZero: true
+               },
+               stacked: true
+           }, {
+             type: 'linear',
+             id: '2ndAxis',
+             position: 'right',
+             stacked: true,
+             ticks: {
+               beginAtZero: true
+             }
+           }]
+       }
+   }
+});
+var chartData7 = {
+labels: [
+           {% for item in days %}
+              "{{item}}",
+          {% endfor %}
+           ],
+datasets: [{
+ label: 'Change',
+ lineTension: 0,
+ yAxisID: '2ndAxis',
+ type: 'line',
+ datalabels: {
+    formatter: function(value, context) {
+            return context.dataset.data[context.dataIndex] + ' %';
+        }
+        },
+ data: [
+ {% for i in range(0, result["session_category_line_data"]|length) %}
+    "{{result["session_category_line_data"][i][1]['Email'].split("%")[0]}}",
+    {% endfor %}
+ ],
+ fill: false,
+ borderColor: 'rgba(47, 70, 79, 0.8)',
+ backgroundColor: 'rgba(47, 70, 79, 1)',
+ borderWidth: 2
+},{
+   label: 'Email Traffic',
+   type: 'bar',
+   data: [
+        {% for i in range(0, result["session_category_line_data"]|length) %}
+        "{{result["session_category_line_data"][i][0]['Email']}}",
+        {% endfor %}
+   ],
+   borderColor: 'rgba(63, 255, 172, 0.5)',
+   backgroundColor: 'rgba(63, 255, 172, 1)',
+   borderWidth: 2
+}]
+   };
+var ctx = document.getElementById("myChart7").getContext("2d");
+var myChart = new Chart(ctx, {
+   responsive: true,
+   type: 'bar',
+   data: chartData7,
+   options: {
+       plugins: {
+              datalabels: {
+                align: 'end',
+                anchor: 'end',
+                backgroundColor: null,
+                borderColor: null,
+                borderRadius: 4,
+                borderWidth: 1,
+                color:'#14141f',
+                font: {
+                  size: 11,
+                  weight: 600
+                },
+                offset: 0,
+                padding: 0,
+              }
+            },
+       scales: {
+           yAxes: [{
+               ticks: {
+                   beginAtZero: true
+               },
+               stacked: true
+           }, {
+             type: 'linear',
+             id: '2ndAxis',
+             position: 'right',
+             stacked: true,
+             ticks: {
+               beginAtZero: true
+             }
+           }]
+       }
+   }
+});
+var chartData8 = {
+labels:[
+      {% for item in days %}
+            "{{item}}",
+        {% endfor %}
+         ],
+datasets: [{
+ label: 'Change',
+ lineTension: 0,
+ yAxisID: '2ndAxis',
+ type: 'line',
+ datalabels: {
+    formatter: function(value, context) {
+            return context.dataset.data[context.dataIndex] + ' %';
+        }
+        },
+ data: [
+ {% for item1, item2 in result['traffic']['MobileTabletTraffic']['present'][0:30]|zip(result['traffic']['MobileTabletTraffic']['previous'][0:30]) %}
+    {% if (item2['traffic']|int)!=0 %}
+    {% set change = ((((item1['traffic']|int)-(item2['traffic']|int))/(item2['traffic']|int)) * 100)|round(2) %}
+    {% if change > 100 %}
+    "{{100}}",
+    {% else %}
+    "{{change}}",
+    {% endif %}
+    {% else %}
+    "100",
+    {% endif %}
+ {% endfor %}
+ ],
+ fill: false,
+ borderColor: 'rgba(7, 175, 133, 0.8)',
+ backgroundColor: 'rgba(7, 175, 133, 0.1)',
+ borderWidth: 2
+},{
+   label: 'Mobile+Tablet Traffic',
+   type: 'bar',
+   data: [
+        {% for item in result['traffic']['MobileTabletTraffic']['present'][0:30] %}
+            "{{item['traffic']}}",
+        {% endfor %}
+   ],
+   borderColor: 'rgba(255, 200, 84, 0.5)',
+   backgroundColor: 'rgba(255, 200, 84, 1)',
+   borderWidth: 2
+}]
+   };
+var ctx = document.getElementById("myChart8").getContext("2d");
+var myChart = new Chart(ctx, {
+   responsive: true,
+   type: 'bar',
+   data: chartData8,
+   options: {
+       plugins: {
+              datalabels: {
+                align: 'end',
+                anchor: 'end',
+                backgroundColor: null,
+                borderColor: null,
+                borderRadius: 4,
+                borderWidth: 1,
+                color:'#14141f',
+                font: {
+                  size: 11,
+                  weight: 600
+                },
+                offset: 0,
+                padding: 0,
+              }
+            },
+       scales: {
+           yAxes: [{
+               ticks: {
+                   beginAtZero: true
+               },
+               stacked: true
+           }, {
+             type: 'linear',
+             id: '2ndAxis',
+             position: 'right',
+             stacked: true,
+             ticks: {
+               beginAtZero: true
+             }
+           }]
+       }
+   }
+});
+var chartData9 = {
+labels: [
+           {% for item in days %}
+            "{{item}}",
+           {% endfor %}
+           ],
+datasets: [{
+ label: 'Change',
+ lineTension: 0,
+ yAxisID: '2ndAxis',
+ type: 'line',
+ datalabels: {
+    formatter: function(value, context) {
+            return context.dataset.data[context.dataIndex] + ' %';
+        }
+        },
+ data: [
+ {% for item1, item2 in result['traffic']['returningusers']['present'][0:30]|zip(result['traffic']['returningusers']['previous'][0:30]) %}
+    {% if (item2['traffic']|int)!=0 %}
+    {% set change = ((((item1['traffic']|int)-(item2['traffic']|int))/(item2['traffic']|int)) * 100)|round(2) %}
+    {% if change > 100 %}
+    "{{100}}",
+    {% else %}
+    "{{change}}",
+    {% endif %}
+    {% else %}
+    "100",
+    {% endif %}
+ {% endfor %}
+ ],
+ fill: false,
+ borderColor: 'rgba(105, 46, 201, 0.8)',
+ backgroundColor: 'rgba(105, 46, 201, 1)',
+ borderWidth: 2
+},{
+   label: 'Return Users',
+   type: 'bar',
+   data: [
+        {% for item in result['traffic']['returningusers']['present'][0:30] %}
+            "{{item['traffic']}}",
+        {% endfor %}
+   ],
+   borderColor: 'rgba(246, 224, 249, 0.8)',
+   backgroundColor: 'rgba(246, 224, 249, 1)',
+   borderWidth: 2
+}]
+   };
+var ctx = document.getElementById("myChart9").getContext("2d");
+var myChart = new Chart(ctx, {
+   responsive: true,
+   type: 'bar',
+   data: chartData9,
+   options: {
+       plugins: {
+              datalabels: {
+                align: 'end',
+                anchor: 'end',
+                backgroundColor: null,
+                borderColor: null,
+                borderRadius: 4,
+                borderWidth: 1,
+                color:'#14141f',
+                font: {
+                  size:11,
+                  weight: 600
+                },
+                offset: 0,
+                padding: 0,
+              }
+            },
+       scales: {
+           yAxes: [{
+               ticks: {
+                   beginAtZero: true
+               },
+               stacked: true
+           }, {
+             type: 'linear',
+             id: '2ndAxis',
+             position: 'right',
+             stacked: true,
+             ticks: {
+               beginAtZero: true
+             }
+           }]
+       }
+   }
+});
+</script>
+
+<script>
+var chartData10 = {
+labels:[
+        {% for item in days %}
+            "{{item}}",
+        {% endfor %}
+    ],
+datasets: [{
+ label: 'Change',
+ lineTension: 0,
+ yAxisID: '2ndAxis',
+ type: 'line',
+ datalabels: {
+    formatter: function(value, context) {
+            return context.dataset.data[context.dataIndex] + ' %';
+        }
+        },
+ data: [
+ {% for item in result['session_region_line_data'][0] %}
+    "{{item.get('Change', "0%").split('%')[0]}}",
+    {% endfor %}
+ ],
+ fill: false,
+ borderColor: 'rgba(1, 150, 6, 0.8)',
+ backgroundColor: 'rgba(1, 150, 6, 1)',
+ borderWidth: 2
+},{
+   label: 'Total Sessions',
+   type: 'bar',
+   data: [
+        {% for item in result['session_region_line_data'][0] %}
+            "{{item.get('Total')}}",
+            {% endfor %}
+   ],
+   borderColor: 'rgba(249, 188, 64, 0.5)',
+   backgroundColor: 'rgba(249, 188, 64, 1)',
+   borderWidth: 2
+}]
+   };
+var ctx = document.getElementById("regionChart1").getContext("2d");
+var myChart = new Chart(ctx, {
+   responsive: true,
+   type: 'bar',
+   data: chartData10,
+   options: {
+       plugins: {
+              datalabels: {
+                align: 'end',
+                anchor: 'end',
+                backgroundColor: null,
+                borderColor: null,
+                borderRadius: 4,
+                borderWidth: 1,
+                color:'#14141f',
+                font: {
+                  size: 11,
+                  weight: 600
+                },
+                offset: 0,
+                padding: 0,
+              }
+            },
+       scales: {
+           yAxes: [{
+               ticks: {
+                   beginAtZero: true
+               },
+               stacked: true
+           }, {
+             type: 'linear',
+             id: '2ndAxis',
+             position: 'right',
+             stacked: true,
+             ticks: {
+               beginAtZero: true
+             }
+           }]
+       }
+   }
+});
+var chartData11 = {
+labels:[
+        {% for item in days %}
+            "{{item}}",
+        {% endfor %}
+    ],
+datasets: [{
+ label: 'Change',
+ lineTension: 0,
+ yAxisID: '2ndAxis',
+ type: 'line',
+ datalabels: {
+    formatter: function(value, context) {
+            return context.dataset.data[context.dataIndex] + ' %';
+        }
+        },
+ data: [
+ {% for item in result['session_region_line_data'][1] %}
+    "{{item.get('Change', "0%").split('%')[0]}}",
+    {% endfor %}
+ ],
+ fill: false,
+ borderColor: 'rgba(226, 31, 31, 0.8)',
+ backgroundColor: 'rgba(226, 31, 31, 1)',
+ borderWidth: 2
+},{
+   label: 'Total Sessions',
+   type: 'bar',
+   data: [
+        {% for item in result['session_region_line_data'][1] %}
+            "{{item.get('Total')}}",
+            {% endfor %}
+   ],
+   borderColor: 'rgba(104, 229, 255, 0.5)',
+   backgroundColor: 'rgba(104, 229, 255, 1)',
+   borderWidth: 2
+}]
+   };
+var ctx = document.getElementById("regionChart2").getContext("2d");
+var myChart = new Chart(ctx, {
+   responsive: true,
+   type: 'bar',
+   data: chartData11,
+   options: {
+       plugins: {
+              datalabels: {
+                align: 'end',
+                anchor: 'end',
+                backgroundColor: null,
+                borderColor: null,
+                borderRadius: 4,
+                borderWidth: 1,
+                color:'#14141f',
+                font: {
+                  size: 11,
+                  weight: 600
+                },
+                offset: 0,
+                padding: 0,
+              }
+            },
+       scales: {
+           yAxes: [{
+               ticks: {
+                   beginAtZero: true
+               },
+               stacked: true
+           }, {
+             type: 'linear',
+             id: '2ndAxis',
+             position: 'right',
+             stacked: true,
+             ticks: {
+               beginAtZero: true
+             }
+           }]
+       }
+   }
+});
+var chartData12 = {
+labels:[
+        {% for item in days %}
+            "{{item}}",
+        {% endfor %}
+    ],
+datasets: [{
+ label: 'Change',
+ lineTension: 0,
+ yAxisID: '2ndAxis',
+ type: 'line',
+ datalabels: {
+    formatter: function(value, context) {
+            return context.dataset.data[context.dataIndex] + ' %';
+        }
+        },
+ data: [
+ {% for item in result['session_region_line_data'][2] %}
+    "{{item.get('Change', "0%").split('%')[0]}}",
+    {% endfor %}
+ ],
+ fill: false,
+ borderColor: 'rgba(53, 0, 214, 0.8)',
+ backgroundColor: 'rgba(53, 0, 214, 1)',
+ borderWidth: 2
+},{
+   label: 'Total Sessions',
+   type: 'bar',
+   data: [
+        {% for item in result['session_region_line_data'][2] %}
+            "{{item.get('Total')}}",
+            {% endfor %}
+   ],
+   borderColor: 'rgba(33, 183, 178, 0.5)',
+   backgroundColor: 'rgba(33, 183, 178, 1)',
+   borderWidth: 2
+}]
+   };
+var ctx = document.getElementById("regionChart3").getContext("2d");
+var myChart = new Chart(ctx, {
+   responsive: true,
+   type: 'bar',
+   data: chartData12,
+   options: {
+       plugins: {
+              datalabels: {
+                align: 'end',
+                anchor: 'end',
+                backgroundColor: null,
+                borderColor: null,
+                borderRadius: 4,
+                borderWidth: 1,
+                color:'#14141f',
+                font: {
+                  size: 11,
+                  weight: 600
+                },
+                offset: 0,
+                padding: 0,
+              }
+            },
+       scales: {
+           yAxes: [{
+               ticks: {
+                   beginAtZero: true
+               },
+               stacked: true
+           }, {
+             type: 'linear',
+             id: '2ndAxis',
+             position: 'right',
+             stacked: true,
+             ticks: {
+               beginAtZero: true
+             }
+           }]
+       }
+   }
+});
+var chartData13 = {
+labels:[
+       {% for item in days %}
+            "{{item}}",
+        {% endfor %}
+    ],
+datasets: [{
+ label: 'Change',
+ lineTension: 0,
+ yAxisID: '2ndAxis',
+ type: 'line',
+ datalabels: {
+    formatter: function(value, context) {
+            return context.dataset.data[context.dataIndex] + ' %';
+        }
+        },
+ data: [
+ {% for item in result['session_region_line_data'][3] %}
+    "{{item.get('Change', "0%").split('%')[0]}}",
+    {% endfor %}
+ ],
+ fill: false,
+ borderColor: 'rgba(173, 27, 1, 0.8)',
+ backgroundColor: 'rgba(173, 27, 1, 1)',
+ borderWidth: 2
+},{
+   label: 'Total Sessions',
+   type: 'bar',
+   data: [
+        {% for item in result['session_region_line_data'][3] %}
+            "{{item.get('Total')}}",
+            {% endfor %}
+   ],
+   borderColor: 'rgba(140, 131, 239, 0.5)',
+   backgroundColor: 'rgba(140, 131, 239, 1)',
+   borderWidth: 2
+}]
+   };
+var ctx = document.getElementById("regionChart4").getContext("2d");
+var myChart = new Chart(ctx, {
+   responsive: true,
+   type: 'bar',
+   data: chartData13,
+   options: {
+       plugins: {
+              datalabels: {
+                align: 'end',
+                anchor: 'end',
+                backgroundColor: null,
+                borderColor: null,
+                borderRadius: 4,
+                borderWidth: 1,
+                color:'#14141f',
+                font: {
+                  size: 11,
+                  weight: 600
+                },
+                offset: 0,
+                padding: 0,
+              }
+            },
+       scales: {
+           yAxes: [{
+               ticks: {
+                   beginAtZero: true
+               },
+               stacked: true
+           }, {
+             type: 'linear',
+             id: '2ndAxis',
+             position: 'right',
+             stacked: true,
+             ticks: {
+               beginAtZero: true
+             }
+           }]
+       }
+   }
+});
+var chartData14 = {
+labels:[
+       {% for item in days %}
+            "{{item}}",
+        {% endfor %}
+    ],
+datasets: [{
+ label: 'Change',
+ lineTension: 0,
+ yAxisID: '2ndAxis',
+ type: 'line',
+ datalabels: {
+    formatter: function(value, context) {
+            return context.dataset.data[context.dataIndex] + ' %';
+        }
+        },
+ data: [
+ {% for item in result['session_region_line_data'][4] %}
+    "{{item.get('Change', "0%").split('%')[0]}}",
+    {% endfor %}
+ ],
+ fill: false,
+ borderColor: 'rgba(130, 23, 211, 0.8)',
+ backgroundColor: 'rgba(130, 23, 211, 1)',
+ borderWidth: 2
+},{
+   label: 'Total Sessions',
+   type: 'bar',
+   data: [
+        {% for item in result['session_region_line_data'][4] %}
+            "{{item.get('Total')}}",
+            {% endfor %}
+   ],
+   borderColor: 'rgba(120, 185, 188, 0.5)',
+   backgroundColor: 'rgba(120, 185, 188, 1)',
+   borderWidth: 2
+}]
+   };
+var ctx = document.getElementById("regionChart5").getContext("2d");
+var myChart = new Chart(ctx, {
+   responsive: true,
+   type: 'bar',
+   data: chartData14,
+   options: {
+       plugins: {
+              datalabels: {
+                align: 'end',
+                anchor: 'end',
+                backgroundColor: null,
+                borderColor: null,
+                borderRadius: 4,
+                borderWidth: 1,
+                color:'#14141f',
+                font: {
+                  size: 11,
+                  weight: 600
+                },
+                offset: 0,
+                padding: 0,
+              }
+            },
+       scales: {
+           yAxes: [{
+               ticks: {
+                   beginAtZero: true
+               },
+               stacked: true
+           }, {
+             type: 'linear',
+             id: '2ndAxis',
+             position: 'right',
+             stacked: true,
+             ticks: {
+               beginAtZero: true
+             }
+           }]
+       }
+   }
+});
+var chartData15 = {
+labels:[
+        {% for item in days %}
+            "{{item}}",
+        {% endfor %}
+    ],
+datasets: [{
+ label: 'Change',
+ lineTension: 0,
+ yAxisID: '2ndAxis',
+ type: 'line',
+ datalabels: {
+    formatter: function(value, context) {
+            return context.dataset.data[context.dataIndex] + ' %';
+        }
+        },
+ data: [
+ {% for item in result['session_region_line_data'][5] %}
+    "{{item.get('Change', "0%").split('%')[0]}}",
+    {% endfor %}
+ ],
+ fill: false,
+ borderColor: 'rgba(255, 144, 0, 0.8)',
+ backgroundColor: 'rgba(255, 144, 0, 1)',
+ borderWidth: 2
+},{
+   label: 'Total Sessions',
+   type: 'bar',
+   data: [
+        {% for item in result['session_region_line_data'][5] %}
+            "{{item.get('Total')}}",
+            {% endfor %}
+   ],
+   borderColor: 'rgba(111, 174, 247, 0.8)',
+   backgroundColor: 'rgba(111, 174, 247, 1)',
+   borderWidth: 2
+}]
+   };
+var ctx = document.getElementById("regionChart6").getContext("2d");
+var myChart = new Chart(ctx, {
+   responsive: true,
+   type: 'bar',
+   data: chartData15,
+   options: {
+       plugins: {
+              datalabels: {
+                align: 'end',
+                anchor: 'end',
+                backgroundColor: null,
+                borderColor: null,
+                borderRadius: 4,
+                borderWidth: 1,
+                color:'#14141f',
+                font: {
+                  size: 11,
+                  weight: 600
+                },
+                offset: 0,
+                padding: 0,
+              }
+            },
+       scales: {
+           yAxes: [{
+               ticks: {
+                   beginAtZero: true
+               },
+               stacked: true
+           }, {
+             type: 'linear',
+             id: '2ndAxis',
+             position: 'right',
+             stacked: true,
+             ticks: {
+               beginAtZero: true
+             }
+           }]
+       }
+   }
+});
+var chartData16 = {
+labels:[
+        {% for item in days %}
+            "{{item}}",
+        {% endfor %}
+    ],
+datasets: [{
+ label: 'Change',
+ lineTension: 0,
+ yAxisID: '2ndAxis',
+ type: 'line',
+ datalabels: {
+    formatter: function(value, context) {
+            return context.dataset.data[context.dataIndex] + ' %';
+        }
+        },
+ data: [
+ {% for item in result['session_region_line_data'][6] %}
+    "{{item.get('Change', "0%").split('%')[0]}}",
+    {% endfor %}
+ ],
+ fill: false,
+ borderColor: 'rgba(122, 11, 59, 0.8)',
+ backgroundColor: 'rgba(122, 11, 59, 1)',
+ borderWidth: 2
+},{
+   label: 'Total Sessions',
+   type: 'bar',
+   data: [
+        {% for item in result['session_region_line_data'][6] %}
+            "{{item.get('Total')}}",
+            {% endfor %}
+   ],
+   borderColor: 'rgba(64, 176, 178, 0.5)',
+   backgroundColor: 'rgba(64, 176, 178, 1)',
+   borderWidth: 2
+}]
+   };
+var ctx = document.getElementById("regionChart7").getContext("2d");
+var myChart = new Chart(ctx, {
+   responsive: true,
+   type: 'bar',
+   data: chartData16,
+   options: {
+       plugins: {
+              datalabels: {
+                align: 'end',
+                anchor: 'end',
+                backgroundColor: null,
+                borderColor: null,
+                borderRadius: 4,
+                borderWidth: 1,
+                color:'#14141f',
+                font: {
+                  size: 11,
+                  weight: 600
+                },
+                offset: 0,
+                padding: 0,
+              }
+            },
+       scales: {
+           yAxes: [{
+               ticks: {
+                   beginAtZero: true
+               },
+               stacked: true
+           }, {
+             type: 'linear',
+             id: '2ndAxis',
+             position: 'right',
+             stacked: true,
+             ticks: {
+               beginAtZero: true
+             }
+           }]
+       }
+   }
+});
+var chartData17 = {
+labels:[
+        {% for item in days %}
+            "{{item}}",
+        {% endfor %}
+    ],
+datasets: [{
+ label: 'Change',
+ lineTension: 0,
+ yAxisID: '2ndAxis',
+ type: 'line',
+ datalabels: {
+    formatter: function(value, context) {
+            return context.dataset.data[context.dataIndex] + ' %';
+        }
+        },
+ data: [
+ {% for item in result['session_region_line_data'][7] %}
+    "{{item.get('Change', "0%").split('%')[0]}}",
+    {% endfor %}
+ ],
+ fill: false,
+ borderColor: 'rgba(239, 144, 11, 0.8)',
+ backgroundColor: 'rgba(239, 144, 11, 1)',
+ borderWidth: 2
+},{
+   label: 'Total Sessions',
+   type: 'bar',
+   data: [
+        {% for item in result['session_region_line_data'][7] %}
+            "{{item.get('Total')}}",
+            {% endfor %}
+   ],
+   borderColor: 'rgba(212, 247, 180, 0.8)',
+   backgroundColor: 'rgba(212, 247, 180, 1)',
+   borderWidth: 2
+}]
+   };
+var ctx = document.getElementById("regionChart8").getContext("2d");
+var myChart = new Chart(ctx, {
+   responsive: true,
+   type: 'bar',
+   data: chartData17,
+   options: {
+       plugins: {
+              datalabels: {
+                align: 'end',
+                anchor: 'end',
+                backgroundColor: null,
+                borderColor: null,
+                borderRadius: 4,
+                borderWidth: 1,
+                color:'#14141f',
+                font: {
+                  size: 11,
+                  weight: 600
+                },
+                offset: 0,
+                padding: 0,
+              }
+            },
+       scales: {
+           yAxes: [{
+               ticks: {
+                   beginAtZero: true
+               },
+               stacked: true
+           }, {
+             type: 'linear',
+             id: '2ndAxis',
+             position: 'right',
+             stacked: true,
+             ticks: {
+               beginAtZero: true
+             }
+           }]
+       }
+   }
+});
+</script>
+
+<script>
+var ctx1 = document.getElementById("myChart-1").getContext('2d');
+var myChart1 = new Chart(ctx1, {
+    type: 'bar',
+    data: {
+        labels:['Organic', 'Direct', 'Referral', 'Social', 'Paid', 'Email'],
+        datasets: [{
+            label: ['Sources'],
+            data: [
+                "{{result['session_category'][8].get('Organic Search', 0)}}",
+                "{{result['session_category'][8].get('Direct', 0)}}",
+                "{{result['session_category'][8].get('Referral', 0)}}",
+                "{{result['session_category'][8].get('Social', 0)}}",
+                "{{result['session_category'][8].get('Paid Search', 0)}}",
+                "{{result['session_category'][8].get('Email', 0)}}",
+            ],
+            backgroundColor: [
+                  'rgba(45, 180, 152, 0.7)',
+                  'rgba(45, 180, 152, 0.7)',
+                  'rgba(45, 180, 152, 0.7)',
+                  'rgba(45, 180, 152, 0.7)',
+                  'rgba(45, 180, 152, 0.7)',
+                  'rgba(45, 180, 152, 0.7)',
+                  ],
+            borderColor: [
+                'rgba(45, 180, 152, 1)',
+                'rgba(45, 180, 152, 1)',
+                'rgba(45, 180, 152, 1)',
+                'rgba(45, 180, 152, 1)',
+                'rgba(45, 180, 152, 1)',
+                'rgba(45, 180, 152, 1)',
+            ],
+            borderWidth: 0.5
+        },
+        {
+        datalabels: {
+            color:'#000000',
+            offset: -20,
+      	    formatter: function(value, context) {
+                    return context.dataset.data[context.dataIndex] + ' %';
+                }
+                },
+            label: ['Change'],
+            type: 'line',
+            fill: false,
+            data: [
+                "{{result['session_category'][-1].get('Organic Search', "0%").split("%")[0]}}",
+                "{{result['session_category'][-1].get('Direct', "0%").split("%")[0]}}",
+                "{{result['session_category'][-1].get('Referral', "0%").split("%")[0]}}",
+                "{{result['session_category'][-1].get('Social', "0%").split("%")[0]}}",
+                "{{result['session_category'][-1].get('Paid Search', "0%").split("%")[0]}}",
+                "{{result['session_category'][-1].get('Email', "0%").split("%")[0]}}"
+                ],
+            backgroundColor: [
+                  'rgba(225, 52, 65, 0.8)',
+                  ],
+            borderColor: [
+                  'rgba(225, 52, 65, 0.4)',
+                  ]
+        }]
+    },
+    options: {
+        plugins: {
+              datalabels: {
+                align: 'end',
+                anchor: 'end',
+                backgroundColor: null,
+                borderColor: null,
+                borderRadius: 4,
+                borderWidth: 1,
+                color:'#6b6a66',
+                font: {
+                  size: 12,
+                  weight: 600
+                },
+                offset: 0,
+                padding: 0,
+              }
+            },
+        title: {
+			display: false,
+			text: 'Traffic by Channel'
+			},
+        tooltips: {
+            mode: 'index',
+            },
+        scales: {
+            yAxes: [{
+                stacked: true,
+                gridLines: {
+                    display:true
+                },
+                ticks: {
+                    beginAtZero:true
+                }
+            }],
+            xAxes: [{
+                stacked: true,
+                gridLines: {
+                    display:true
+                },
+            }]
+        }
+    }
+});
+
+var ctx1 = document.getElementById("myChart-2").getContext('2d');
+var myChart1 = new Chart(ctx1, {
+    type: 'bar',
+    data: {
+        labels: [{% for item in result['sessions'] %}
+                  {%if item['Country'] != 'Total' %}
+                  "{{item['Country']}}",
+                  {% endif %}
+              {% endfor %}],
+        datasets: [{
+            label: ['sessions'],
+            data: [{% for item in result['sessions'] %}
+                    {%if item['Country'] != 'Total' %}
+                  "{{item['Current']}}",
+                  {% endif %}
+                  {% endfor %}],
+            backgroundColor: [{% for item in result['sessions'] %}
+                    {%if item['Country'] != 'Total' %}
+                  'rgba(45, 180, 152, 0.7)',
+                  {% endif %}
+                  {% endfor %}],
+            borderColor: [{% for item in result['sessions'] %}
+                    {%if item['Country'] != 'Total' %}
+                  'rgba(45, 180, 152, 1)',
+                  {% endif %}
+                  {% endfor %}],
+            borderWidth: 0.5
+        },
+        {
+        datalabels: {
+            color:'#000000',
+            offset: -20,
+      	    formatter: function(value, context) {
+                    return context.dataset.data[context.dataIndex] + ' %';
+                }
+                },
+            label: ['Change'],
+            type: 'line',
+            fill: false,
+            data: [{% for item in result['sessions'] %}
+                    {%if item['Country'] != 'Total' %}
+                  {{item['Change'].split('%')[0]}},
+                  {% endif %}
+                  {% endfor %}],
+            backgroundColor: [
+                  'rgba(225, 52, 65, 0.8)',
+                  ],
+            borderColor: [
+                  'rgba(225, 52, 65, 0.4)',
+                  ]
+        }]
+    },
+    options: {
+        plugins: {
+              datalabels: {
+                align: 'end',
+                anchor: 'end',
+                backgroundColor: null,
+                borderColor: null,
+                borderRadius: 4,
+                borderWidth: 1,
+                color:'#6b6a66',
+                font: {
+                  size: 12,
+                  weight: 600
+                },
+                offset: 0,
+                padding: 0,
+              }
+            },
+        title: {
+			display: false,
+			text: 'Traffic by Channel'
+			},
+        tooltips: {
+            mode: 'index',
+            },
+        scales: {
+            yAxes: [{
+                stacked: true,
+                gridLines: {
+                    display:true
+                },
+                ticks: {
+                    beginAtZero:true
+                }
+            }],
+            xAxes: [{
+                stacked: true,
+                gridLines: {
+                    display:true
+                },
+            }]
+        }
+    }
+});
+var ctx = document.getElementById("myChart-3").getContext('2d');
+var myChart = new Chart(ctx, {
+			type: 'bar',
+			data: {
+				labels: ['UK', 'US', 'France', 'China', 'India', 'SEA', 'ANZ', 'ROW'],
+				datasets: [{
+				datalabels: {
+                    display: false,
+                },
+                label: ['Organic Search'],
+                data: [{{result['session_category'][0].get('Organic Search', 0)}},{{result['session_category'][1].get('Organic Search', 0)}},
+                {{result['session_category'][2].get('Organic Search', 0)}},{{result['session_category'][3].get('Organic Search', 0)}},
+                {{result['session_category'][4].get('Organic Search', 0)}},{{result['session_category'][5].get('Organic Search', 0)}},
+                {{result['session_category'][6].get('Organic Search', 0)}},{{result['session_category'][7].get('Organic Search', 0)}}],
+                backgroundColor: [
+                    'rgba(51, 100, 255, 0.8)','rgba(51, 100, 255, 0.8)','rgba(51, 100, 255, 0.8)','rgba(51, 100, 255, 0.8)',
+                    'rgba(51, 100, 255, 0.8)','rgba(51, 100, 255, 0.8)','rgba(51, 100, 255, 0.8)','rgba(51, 100, 255, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)',
+                    'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)'
+                ],
+                borderWidth: 0.5
+            },
+            {
+                datalabels: {
+                    display: false
+                },
+                label: ['Direct'],
+                data: [{{result['session_category'][0].get('Direct', 0)}},{{result['session_category'][1].get('Direct', 0)}},
+                {{result['session_category'][2].get('Direct', 0)}},{{result['session_category'][3].get('Direct', 0)}},
+                {{result['session_category'][4].get('Direct', 0)}},{{result['session_category'][5].get('Direct', 0)}},
+                {{result['session_category'][6].get('Direct', 0)}},{{result['session_category'][7].get('Direct', 0)}}],
+                backgroundColor: [
+                    'rgba(255, 49, 49, 0.8)','rgba(255, 49, 49, 0.8)','rgba(255, 49, 49, 0.8)','rgba(255, 49, 49, 0.8)',
+                    'rgba(255, 49, 49, 0.8)','rgba(255, 49, 49, 0.8)','rgba(255, 49, 49, 0.8)','rgba(255, 49, 49, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)',
+                    'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)'
+                ],
+                borderWidth: 0.5
+                },
+            {
+                datalabels: {
+                    display: false
+                },
+                label: ['Referral'],
+                data: [{{result['session_category'][0].get('Referral', 0)}},{{result['session_category'][1].get('Referral', 0)}},
+                {{result['session_category'][2].get('Referral', 0)}},{{result['session_category'][3].get('Referral', 0)}},
+                {{result['session_category'][4].get('Referral', 0)}},{{result['session_category'][5].get('Referral', 0)}},
+                {{result['session_category'][6].get('Referral', 0)}},{{result['session_category'][7].get('Referral', 0)}}],
+                backgroundColor: [
+                    'rgba(252, 135, 54,0.8)','rgba(252, 135, 54,0.8)','rgba(252, 135, 54,0.8)','rgba(252, 135, 54,0.8)',
+                    'rgba(252, 135, 54,0.8)','rgba(252, 135, 54,0.8)','rgba(252, 135, 54,0.8)','rgba(252, 135, 54,0.8)'
+                ],
+                borderColor: [
+                    'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)',
+                    'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)'
+                ],
+                borderWidth: 0.5
+                },
+            {
+                datalabels: {
+                    display: false
+                },
+                label: ['Social'],
+                data: [{{result['session_category'][0].get('Social', 0)}},{{result['session_category'][1].get('Social', 0)}},
+                {{result['session_category'][2].get('Social', 0)}},{{result['session_category'][3].get('Social', 0)}},
+                {{result['session_category'][4].get('Social', 0)}},{{result['session_category'][5].get('Social', 0)}},
+                {{result['session_category'][6].get('Social', 0)}},{{result['session_category'][7].get('Social', 0)}}],
+                backgroundColor: [
+                    'rgba(22, 152, 31, 0.8)','rgba(22, 152, 31, 0.8)','rgba(22, 152, 31, 0.8)','rgba(22, 152, 31, 0.8)',
+                    'rgba(22, 152, 31, 0.8)','rgba(22, 152, 31, 0.8)','rgba(22, 152, 31, 0.8)','rgba(22, 152, 31, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)',
+                    'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)'
+                ],
+                borderWidth: 0.5
+                },
+            {
+                datalabels: {
+                    display: false
+                },
+                label: ['Paid Search'],
+                data: [{{result['session_category'][0].get('Paid Search', 0)}},{{result['session_category'][1].get('Paid Search', 0)}},
+                {{result['session_category'][2].get('Paid Search', 0)}},{{result['session_category'][3].get('Paid Search', 0)}},
+                {{result['session_category'][4].get('Paid Search', 0)}},{{result['session_category'][5].get('Paid Search', 0)}},
+                {{result['session_category'][6].get('Paid Search', 0)}},{{result['session_category'][7].get('Paid Search', 0)}}],
+                backgroundColor: [
+                    'rgba(218, 14, 247, 0.8)','rgba(218, 14, 247, 0.8)','rgba(218, 14, 247, 0.8)','rgba(218, 14, 247, 0.8)',
+                    'rgba(218, 14, 247, 0.8)','rgba(218, 14, 247, 0.8)','rgba(218, 14, 247, 0.8)','rgba(218, 14, 247, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)',
+                    'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)'
+                ],
+                borderWidth: 0.5
+                },
+                {
+                label: ['Email'],
+                labels: [
+                    {% for item in result['sessions'] %}
+                    {%if item['Country'] != 'Total' %}
+                    "{{ ((item['Current']|int/result['sessions'][-1]['Current']|int)*100)|round(2) }}",
+                    {% endif %}
+                  {% endfor %}
+                  ],
+                data: [{{result['session_category'][0].get('Email',0)}},{{result['session_category'][1].get('Email',0)}},
+                {{result['session_category'][2].get('Email',0)}},{{result['session_category'][3].get('Email',0)}},
+                {{result['session_category'][4].get('Email',0)}},{{result['session_category'][5].get('Email',0)}},
+                {{result['session_category'][6].get('Email',0)}},{{result['session_category'][7].get('Email',0)}}],
+                backgroundColor: [
+                    'rgba(1, 169, 214, 0.8)','rgba(1, 169, 214, 0.8)','rgba(1, 169, 214, 0.8)','rgba(1, 169, 214, 0.8)',
+                    'rgba(1, 169, 214, 0.8)','rgba(1, 169, 214, 0.8)','rgba(1, 169, 214, 0.8)','rgba(1, 169, 214, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)',
+                    'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)'
+                ],
+                borderWidth: 0.5
+                },
+            ]
+        },
+    options: {
+        plugins: {
+              datalabels: {
+                formatter: function(value, context) {
+                    return context.dataset.labels[context.dataIndex] + '%';
+                },
+                align: 'end',
+                anchor: 'end',
+                backgroundColor: null,
+                borderColor: null,
+                borderRadius: 4,
+                borderWidth: 1,
+                color:'#6b6a66',
+                font: {
+                  size: 12,
+                  weight: 600
+                },
+                offset: 0,
+                padding: 0,
+              }
+            },
+        title: {
+			display: false,
+			text: 'Traffic by Geo'
+			},
+        tooltips: {
+                    mode: 'index',
+                },
+        scales: {
+            yAxes: [{
+                stacked: true,
+                gridLines: {
+                    display:true
+                }
+            }],
+            xAxes: [{
+                stacked: true,
+                gridLines: {
+                    display:false
+                },
+            }]
+        }
+    }
+});
+var barChartData = {
+        labels: ['UK', 'USA', 'France', 'China', 'India', 'SEA', 'ANZ','ROW'],
+        datasets: [{
+            label: 'Organic Search',
+            backgroundColor: [
+               'rgba(51, 100, 255, 0.8)','rgba(51, 100, 255, 0.8)','rgba(51, 100, 255, 0.8)','rgba(51, 100, 255, 0.8)',
+               'rgba(51, 100, 255, 0.8)','rgba(51, 100, 255, 0.8)','rgba(51, 100, 255, 0.8)','rgba(51, 100, 255, 0.8)'],
+            borderColor: [
+               'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)',
+               'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)'],
+            borderWidth: 0.5,
+            data: {{ Change.get('Organic Search', 0) }}
+        }, {
+            label: 'Direct',
+            backgroundColor: [
+               'rgba(255, 49, 49, 0.8)','rgba(255, 49, 49, 0.8)','rgba(255, 49, 49, 0.8)','rgba(255, 49, 49, 0.8)',
+               'rgba(255, 49, 49, 0.8)','rgba(255, 49, 49, 0.8)','rgba(255, 49, 49, 0.8)','rgba(255, 49, 49, 0.8)'],
+            borderColor: [
+               'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)',
+               'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)'],
+            borderWidth: 0.5,
+            data: {{ Change.get('Direct', 0) }}
+        }, {
+            label: 'Referral',
+            backgroundColor: [
+               'rgba(252, 135, 54,0.8)','rgba(252, 135, 54,0.8)','rgba(252, 135, 54,0.8)','rgba(252, 135, 54,0.8)',
+               'rgba(252, 135, 54,0.8)','rgba(252, 135, 54,0.8)','rgba(252, 135, 54,0.8)','rgba(252, 135, 54,0.8)'],
+            borderColor: [
+               'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)',
+               'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)'],
+            borderWidth: 0.5,
+            data: {{ Change.get('Referral',0) }}
+        }, {
+            label: 'Social',
+            backgroundColor: [
+               'rgba(22, 152, 31, 0.5)','rgba(22, 152, 31, 0.5)','rgba(22, 152, 31, 0.5)','rgba(22, 152, 31, 0.5)',
+               'rgba(22, 152, 31, 0.5)','rgba(22, 152, 31, 0.5)','rgba(22, 152, 31, 0.5)','rgba(22, 152, 31, 0.5)'],
+            borderColor: [
+               'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)',
+               'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)'],
+            borderWidth: 0.5,
+            data: {{ Change.get('Social', 0) }}
+        }, {
+            label: 'Paid Search',
+            backgroundColor: [
+               'rgba(218, 14, 247, 0.8)','rgba(218, 14, 247, 0.8)','rgba(218, 14, 247, 0.8)','rgba(218, 14, 247, 0.8)',
+               'rgba(218, 14, 247, 0.8)','rgba(218, 14, 247, 0.8)','rgba(218, 14, 247, 0.8)','rgba(218, 14, 247, 0.8)'],
+            borderColor: [
+               'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)',
+               'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)'],
+            borderWidth: 0.5,
+            data: {{ Change.get('Paid Search', 0) }}
+        }, {
+            label: 'Email',
+            backgroundColor: [
+               'rgba(1, 169, 214, 0.8)','rgba(1, 169, 214, 0.8)','rgba(1, 169, 214, 0.8)','rgba(1, 169, 214, 0.8)',
+               'rgba(1, 169, 214, 0.8)','rgba(1, 169, 214, 0.8)','rgba(1, 169, 214, 0.8)','rgba(1, 169, 214, 0.8)'],
+            borderColor: [
+               'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)',
+               'rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)','rgba(255, 255, 255, 1)'],
+            borderWidth: 0.5,
+            data: {{ Change.get('Email', 0) }}
+        }]
+
+    };
+var ctx = document.getElementById('myChart-4').getContext('2d');
+var myChart = new Chart(ctx, {
+    type: 'bar',
+    data: barChartData,
+    options: {
+        plugins: {
+              datalabels: {
+                display:false,
+                align: 'end',
+                anchor: 'end',
+                backgroundColor: null,
+                borderColor: null,
+                borderRadius: 4,
+                borderWidth: 1,
+                color:'#6b6a66',
+                font: {
+                  size: 12,
+                  weight: 600
+                },
+                offset: 4,
+                padding: 0,
+              }
+            },
+        title: {
+            display: false,
+            text: 'Traffic Performance (% Change) by Region & Source'
+        },
+        tooltips: {
+            mode: 'index',
+        },
+        responsive: true,
+        scales: {
+            xAxes: [{
+                stacked: true,
+            }],
+            yAxes: [{
+                stacked: true,
+                <!--ticks: {-->
+                        <!--max: 80,-->
+                        <!--min: -80,-->
+                    <!--}-->
+            }]
+        }
+    }
+});
+</script>
+{% endblock %}
+{% endblock %}
