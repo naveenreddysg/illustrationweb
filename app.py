@@ -52,7 +52,7 @@ def index():
   conversions = Conversions(present, previous, 'month').main()
   traffic = WebsiteTrafficResults(present, previous, 'date').main()
   bouncerate = BounceRateResults(present, previous).main()
-  avgduration = AvgSessionDuration(present, previous).main()
+  # avgduration = AvgSessionDuration(present, previous).main()
   result = {
       "sessions": sessions['totalSessions'],
       "session_category": sessions['sessions']['present'],
@@ -61,7 +61,7 @@ def index():
       'session_category_line_data': sessions['session_category_line_data'],
       'session_region_line_data': sessions['session_region_line_data'],
       'bouncerate': bouncerate,
-      'avgduration': avgduration,
+      # 'avgduration': avgduration,
   }
 
   flask.session['credentials'] = credentials_to_dict(credentials)
