@@ -108,10 +108,255 @@ def index():
 
           return render_template('last_7_days.html', result=result, dates=dates, Change=Change, option=option,
                                  days=days, visitors=visitors)
+
+      elif dates['option'] == "LastMonthPrevYear":
+          option = 'Prev. Month of Past Year'
+          dates = prev_month_last_year()
+          present = mainClass(dates[0]['pre_start'], dates[0]['pre_end'], service)
+          previous = mainClass(dates[0]['prv_start'], dates[0]['prv_end'], service)
+          sessions = SessionsCategoryResults(present, previous, 'date').main()
+          traffic = WebsiteTrafficResults(present, previous, 'date').main()
+          conversions = Conversions(present, previous, 'month').main()
+          bouncerate = BounceRateResults(present, previous).main()
+          avgduration = AvgSessionDuration(present, previous).main()
+
+          result = {
+              "sessions": sessions['totalSessions'],
+              "session_category": sessions['sessions']['present'],
+              'traffic': traffic,
+              'conversions': conversions,
+              'session_category_line_data': sessions['session_category_line_data'],
+              'session_region_line_data': sessions['session_region_line_data'],
+              'bouncerate': bouncerate,
+              'avgduration': avgduration,
+          }
+          AllVisitors_pre, AllVisitors_prev, MobileTablet_pre, MobileTablet_prev, Return_pre, Return_prev = [], [], [], [], [], []
+
+          for item1, item2 in zip(result['traffic']['AllTraffic']['present'][0:30],
+                                  result['traffic']['AllTraffic']['previous'][0:30]):
+              AllVisitors_pre.append(item1["All Traffic"])
+              AllVisitors_prev.append(item2["All Traffic"])
+          for item3, item4 in zip(result['traffic']['MobileTabletTraffic']['present'][0:30],
+                                  result['traffic']['MobileTabletTraffic']['previous'][0:30]):
+              MobileTablet_pre.append(item3['traffic'])
+              MobileTablet_prev.append(item4['traffic'])
+          for item5, item6 in zip(result['traffic']['returningusers']['present'][0:30],
+                                  result['traffic']['returningusers']['previous'][0:30]):
+              Return_pre.append(item5['traffic'])
+              Return_prev.append(item6['traffic'])
+
+          visitors = {'visits': sum(AllVisitors_pre), 'change_visits': round(
+              ((float(sum(AllVisitors_pre)) - float(sum(AllVisitors_prev))) / float(sum(AllVisitors_prev))) * 100, 2),
+                      'MobileTablet_visits': sum(MobileTablet_pre), 'change_MobileTablet_visits': round(((float(
+                  sum(MobileTablet_pre)) - float(sum(MobileTablet_prev))) / float(sum(MobileTablet_prev))) * 100, 2),
+                      'Return_visits': sum(Return_pre), 'change_Return_visits': round(
+                  ((float(sum(Return_pre)) - float(sum(Return_prev))) / float(sum(Return_prev))) * 100, 2)
+                      }
+
+          dates = {
+              'pre_date': dates[1]['pre_start'] + ' to ' + dates[1]['pre_end'],
+              'prev_date': dates[1]['prv_start'] + ' to ' + dates[1]['prv_end']
+          }
+
+          keys = (sessions['sessions']['present'][0].keys())
+          keys = [x for x in keys if x != 'Country']
+          Change = {
+              i: change(source=i, result=sessions['sessions']) for i in keys
+          }
+          return render_template('last_month_prev_year.html', result=result, dates=dates, Change=Change,
+                                 option=option, visitors=visitors)
+      elif dates['option'] == "30":
+          option = 'This Month (Last 4 Weeks)'
+          present = mainClass("2018-05-01", "2018-05-31")
+          previous = mainClass("2018-04-01", "2018-04-30")
+          return render_template(
+              'coming_soon.html',
+          )
+      elif dates['option'] == "LastMonth":
+          dates = get_two_month_dates()
+          option = 'Prev. Month'
+          present = mainClass(dates[0]['pre_start'], dates[0]['pre_end'], service)
+          previous = mainClass(dates[0]['prv_start'], dates[0]['prv_end'], service)
+          sessions = SessionsCategoryResults(present, previous, 'date').main()
+          traffic = WebsiteTrafficResults(present, previous, 'date').main()
+          conversions = Conversions(present, previous, 'month').main()
+          bouncerate = BounceRateResults(present, previous).main()
+          avgduration = AvgSessionDuration(present, previous).main()
+
+          result = {
+              "sessions": sessions['totalSessions'],
+              "session_category": sessions['sessions']['present'],
+              'traffic': traffic,
+              'conversions': conversions,
+              'session_category_line_data': sessions['session_category_line_data'],
+              'session_region_line_data': sessions['session_region_line_data'],
+              'bouncerate': bouncerate,
+              'avgduration': avgduration,
+          }
+          AllVisitors_pre, AllVisitors_prev, MobileTablet_pre, MobileTablet_prev, Return_pre, Return_prev = [], [], [], [], [], []
+
+          for item1, item2 in zip(result['traffic']['AllTraffic']['present'][0:30],
+                                  result['traffic']['AllTraffic']['previous'][0:30]):
+              AllVisitors_pre.append(item1["All Traffic"])
+              AllVisitors_prev.append(item2["All Traffic"])
+          for item3, item4 in zip(result['traffic']['MobileTabletTraffic']['present'][0:30],
+                                  result['traffic']['MobileTabletTraffic']['previous'][0:30]):
+              MobileTablet_pre.append(item3['traffic'])
+              MobileTablet_prev.append(item4['traffic'])
+          for item5, item6 in zip(result['traffic']['returningusers']['present'][0:30],
+                                  result['traffic']['returningusers']['previous'][0:30]):
+              Return_pre.append(item5['traffic'])
+              Return_prev.append(item6['traffic'])
+
+          visitors = {'visits': sum(AllVisitors_pre), 'change_visits': round(
+              ((float(sum(AllVisitors_pre)) - float(sum(AllVisitors_prev))) / float(sum(AllVisitors_prev))) * 100, 2),
+                      'MobileTablet_visits': sum(MobileTablet_pre), 'change_MobileTablet_visits': round(((float(
+                  sum(MobileTablet_pre)) - float(sum(MobileTablet_prev))) / float(sum(MobileTablet_prev))) * 100, 2),
+                      'Return_visits': sum(Return_pre), 'change_Return_visits': round(
+                  ((float(sum(Return_pre)) - float(sum(Return_prev))) / float(sum(Return_prev))) * 100, 2)
+                      }
+
+          dates = {
+              'pre_date': dates[1]['pre_start'] + ' to ' + dates[1]['pre_end'],
+              'prev_date': dates[1]['prv_start'] + ' to ' + dates[1]['prv_end']
+          }
+
+          keys = (sessions['sessions']['present'][0].keys())
+          keys = [x for x in keys if x != 'Country']
+          Change = {
+              i: change(source=i, result=sessions['sessions']) for i in keys
+          }
+
+          return render_template('last_month.html', result=result, dates=dates, Change=Change, option=option,
+                                 visitors=visitors)
+
+      elif dates['option'] == "12":
+          option = 'Last 12 Months'
+          dates = get12months()
+          present = mainClass(dates[0]['pre_start'], dates[0]['pre_end'], service)
+          previous = mainClass(dates[0]['prv_start'], dates[0]['prv_end'], service)
+          sessions = SessionsCategoryResults(present, previous, 'month').main()
+          traffic = WebsiteTrafficResults(present, previous, 'month').main()
+          conversions = Conversions(present, previous, 'month').main()
+          bouncerate = BounceRateResults(present, previous).main()
+          avgduration = AvgSessionDuration(present, previous).main()
+
+          result = {
+              "sessions": sessions['totalSessions'],
+              "session_category": sessions['sessions']['present'],
+              'traffic': traffic,
+              'conversions': conversions,
+              'session_category_line_data': sessions['session_category_line_data'],
+              'session_region_line_data': sessions['session_region_line_data'],
+              'bouncerate': bouncerate,
+              'avgduration': avgduration,
+          }
+          AllVisitors_pre, AllVisitors_prev, MobileTablet_pre, MobileTablet_prev, Return_pre, Return_prev = [], [], [], [], [], []
+
+          for item1, item2 in zip(result['traffic']['AllTraffic']['present'][0:30],
+                                  result['traffic']['AllTraffic']['previous'][0:30]):
+              AllVisitors_pre.append(item1["All Traffic"])
+              AllVisitors_prev.append(item2["All Traffic"])
+          for item3, item4 in zip(result['traffic']['MobileTabletTraffic']['present'][0:30],
+                                  result['traffic']['MobileTabletTraffic']['previous'][0:30]):
+              MobileTablet_pre.append(item3['traffic'])
+              MobileTablet_prev.append(item4['traffic'])
+          for item5, item6 in zip(result['traffic']['returningusers']['present'][0:30],
+                                  result['traffic']['returningusers']['previous'][0:30]):
+              Return_pre.append(item5['traffic'])
+              Return_prev.append(item6['traffic'])
+
+          visitors = {'visits': sum(AllVisitors_pre), 'change_visits': round(
+              ((float(sum(AllVisitors_pre)) - float(sum(AllVisitors_prev))) / float(sum(AllVisitors_prev))) * 100, 2),
+                      'MobileTablet_visits': sum(MobileTablet_pre), 'change_MobileTablet_visits': round(((float(
+                  sum(MobileTablet_pre)) - float(sum(MobileTablet_prev))) / float(sum(MobileTablet_prev))) * 100, 2),
+                      'Return_visits': sum(Return_pre), 'change_Return_visits': round(
+                  ((float(sum(Return_pre)) - float(sum(Return_prev))) / float(sum(Return_prev))) * 100, 2)
+                      }
+
+          dates = {
+              'pre_date': dates[1]['pre_start'] + ' to ' + dates[1]['pre_end'],
+              'prev_date': dates[1]['prv_start'] + ' to ' + dates[1]['prv_end']
+          }
+
+          keys = (sessions['sessions']['present'][0].keys())
+          keys = [x for x in keys if x != 'Country']
+          Change = {
+              i: change(source=i, result=sessions['sessions']) for i in keys
+          }
+          months = [(day.today() - relativedelta(months=i)).strftime("%b") for i in range(1, 13)]
+
+          return render_template('last_12_months.html', result=result, dates=dates, Change=Change, option=option,
+                                 months=months, visitors=visitors)
+
+      elif dates['option'] == "LastYear":
+          option = 'Last Year'
+          dates = last_year()
+          present = mainClass(dates[0]['pre_start'], dates[0]['pre_end'], service)
+          previous = mainClass(dates[0]['prv_start'], dates[0]['prv_end'], service)
+          sessions = SessionsCategoryResults(present, previous, 'month').main()
+          traffic = WebsiteTrafficResults(present, previous, 'month').main()
+          conversions = Conversions(present, previous, 'year  ').main()
+          bouncerate = BounceRateResults(present, previous).main()
+          avgduration = AvgSessionDuration(present, previous).main()
+
+          result = {
+              "sessions": sessions['totalSessions'],
+              "session_category": sessions['sessions']['present'],
+              'traffic': traffic,
+              'conversions': conversions,
+              'session_category_line_data': sessions['session_category_line_data'],
+              'session_region_line_data': sessions['session_region_line_data'],
+              'bouncerate': bouncerate,
+              'avgduration': avgduration,
+          }
+          AllVisitors_pre, AllVisitors_prev, MobileTablet_pre, MobileTablet_prev, Return_pre, Return_prev = [], [], [], [], [], []
+
+          for item1, item2 in zip(result['traffic']['AllTraffic']['present'][0:30],
+                                  result['traffic']['AllTraffic']['previous'][0:30]):
+              AllVisitors_pre.append(item1["All Traffic"])
+              AllVisitors_prev.append(item2["All Traffic"])
+          for item3, item4 in zip(result['traffic']['MobileTabletTraffic']['present'][0:30],
+                                  result['traffic']['MobileTabletTraffic']['previous'][0:30]):
+              MobileTablet_pre.append(item3['traffic'])
+              MobileTablet_prev.append(item4['traffic'])
+          for item5, item6 in zip(result['traffic']['returningusers']['present'][0:30],
+                                  result['traffic']['returningusers']['previous'][0:30]):
+              Return_pre.append(item5['traffic'])
+              Return_prev.append(item6['traffic'])
+
+          visitors = {'visits': sum(AllVisitors_pre), 'change_visits': round(
+              ((float(sum(AllVisitors_pre)) - float(sum(AllVisitors_prev))) / float(sum(AllVisitors_prev))) * 100, 2),
+                      'MobileTablet_visits': sum(MobileTablet_pre), 'change_MobileTablet_visits': round(((float(
+                  sum(MobileTablet_pre)) - float(sum(MobileTablet_prev))) / float(sum(MobileTablet_prev))) * 100, 2),
+                      'Return_visits': sum(Return_pre), 'change_Return_visits': round(
+                  ((float(sum(Return_pre)) - float(sum(Return_prev))) / float(sum(Return_prev))) * 100, 2)
+                      }
+
+          dates = {
+              'pre_date': dates[1]['pre_start'] + ' to ' + dates[1]['pre_end'],
+              'prev_date': dates[1]['prv_start'] + ' to ' + dates[1]['prv_end']
+          }
+
+          keys = (sessions['sessions']['present'][0].keys())
+          keys = [x for x in keys if x != 'Country']
+          Change = {
+              i: change(source=i, result=sessions['sessions']) for i in keys
+          }
+          return render_template('last_year.html', result=result, dates=dates, Change=Change, option=option,
+                                 visitors=visitors)
+
+      elif dates['option'] == "CustomRange":
+          option = 'Custom Range'
+          present = mainClass("2018-05-01", "2018-05-31", service)
+          previous = mainClass("2018-04-01", "2018-04-30", service)
+
+          return render_template(
+              'coming_soon.html',
+          )
   except Exception as e:
       print(e)
       return render_template("page_500.html")
-
 
 @app.route("/charts")
 def charts():
