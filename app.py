@@ -163,12 +163,14 @@ def index():
           Change = {
               i: change(source=i, result=sessions['sessions']) for i in keys
           }
+          session['credentials'] = credentials_to_dict(credentials)
           return render_template('last_month_prev_year.html', result=result, dates=dates, Change=Change,
                                  option=option, visitors=visitors)
       elif dates['option'] == "30":
           option = 'This Month (Last 4 Weeks)'
           present = mainClass("2018-05-01", "2018-05-31", service)
           previous = mainClass("2018-04-01", "2018-04-30", service)
+          session['credentials'] = credentials_to_dict(credentials)
           return render_template(
               'coming_soon.html',
           )
@@ -226,6 +228,8 @@ def index():
           Change = {
               i: change(source=i, result=sessions['sessions']) for i in keys
           }
+
+          session['credentials'] = credentials_to_dict(credentials)
 
           return render_template('last_month.html', result=result, dates=dates, Change=Change, option=option,
                                  visitors=visitors)
@@ -286,6 +290,8 @@ def index():
           }
           months = [(day.today() - relativedelta(months=i)).strftime("%b") for i in range(1, 13)]
 
+          session['credentials'] = credentials_to_dict(credentials)
+
           return render_template('last_12_months.html', result=result, dates=dates, Change=Change, option=option,
                                  months=months, visitors=visitors)
 
@@ -343,6 +349,9 @@ def index():
           Change = {
               i: change(source=i, result=sessions['sessions']) for i in keys
           }
+
+          session['credentials'] = credentials_to_dict(credentials)
+
           return render_template('last_year.html', result=result, dates=dates, Change=Change, option=option,
                                  visitors=visitors)
 
@@ -351,12 +360,19 @@ def index():
           present = mainClass("2018-05-01", "2018-05-31", service)
           previous = mainClass("2018-04-01", "2018-04-30", service)
 
+          session['credentials'] = credentials_to_dict(credentials)
+
           return render_template(
               'coming_soon.html',
           )
   except Exception as e:
       print(e)
-      return render_template("page_500.html")
+
+      if e == 'The credentials do not contain the necessary fields need to refresh the access token. You must specify refresh_token, token_uri, client_id, and client_secret.':
+          return redirect('authorize')
+
+      else:
+          return render_template("page_500.html")
 
 @app.route("/charts")
 def charts():
