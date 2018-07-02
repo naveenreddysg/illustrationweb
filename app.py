@@ -4,6 +4,12 @@ import os
 import flask
 import requests
 
+from get_data import mainClass
+from ResultServices.results import SessionsCategoryResults, WebsiteTrafficResults, BounceRateResults, AvgSessionDuration,Conversions
+from utilities import (
+    get_dates, get12months, change, get_two_month_dates, prev_month_last_year,  last_year, credentials_to_dict
+)
+
 import google.oauth2.credentials
 import google_auth_oauthlib.flow
 import googleapiclient.discovery
@@ -38,15 +44,19 @@ def index():
   service = googleapiclient.discovery.build(
       API_SERVICE_NAME, API_VERSION, credentials=credentials)
 
-  files = service.data().ga().get(
-      ids='ga:' + '5110029',
-      start_date='7daysAgo',
-      end_date='today',
-      metrics='ga:sessions').execute()
+  option = 'Last 7 days'
+  dates = get_dates(7)
+  present = mainClass(dates[0]['pre_start'], dates[0]['pre_end'], service)
+  previous = mainClass(dates[0]['prv_start'], dates[0]['prv_end'], service)
+  sessions = SessionsCategoryResults(present, previous, 'date').main()
+  result = {
+      "sessions": sessions['totalSessions'],
+      "session_category": sessions['sessions']['present'],
+  }
 
   flask.session['credentials'] = credentials_to_dict(credentials)
 
-  return flask.render_template("result.html", result=files)
+  return flask.render_template("result.html", result=result)
 
 
 @app.route('/authorize')

@@ -688,7 +688,7 @@ def print_conversions(results):
 
 class mainClass:
 
-    def __init__(self, argv, start_date, end_date, service):
+    def __init__(self, start_date, end_date, service):
 
         self.start_date = start_date
         self.end_date = end_date
