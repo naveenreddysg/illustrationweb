@@ -367,12 +367,10 @@ def index():
           )
   except Exception as e:
       print(e)
-
-      if e == 'The credentials do not contain the necessary fields need to refresh the access token. You must specify refresh_token, token_uri, client_id, and client_secret.':
-          return redirect('authorize')
-
-      else:
-          return render_template("page_500.html")
+      # if e == 'The credentials do not contain the necessary fields need to refresh the access token. You must specify refresh_token, token_uri, client_id, and client_secret.':
+      return redirect('authorize')
+      # else:
+      #     return render_template("page_500.html")
 
 @app.route("/charts")
 def charts():
