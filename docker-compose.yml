@@ -5,4 +5,4 @@ services:
     volumes:
      - .:/usr/code
     ports:
-     - "8080:8080"
+     - "6000:8080"
