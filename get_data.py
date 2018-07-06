@@ -231,14 +231,27 @@ def print_sessions(results, country):
     results = results.get('rows')
 
     def new_result(result):
-
-        l = {"option": result[1], 'Email' if result[0] == '(Other)' else result[0]: result[2]}
+        l = {"option": result[1], result[0]: result[2]}
         return l
 
     results = itertools.groupby(sorted(list(map(new_result, results)), key=itemgetter('option')), key=lambda x: x['option'])
     result = []
     for key, item in results:
         result.append(dict(ChainMap(*list(item)+[{'Country': country}])))
+
+    key_lst = ['Referral', 'Direct', 'Social', 'Organic Search', 'Paid Search', 'Country', 'option']
+
+    def merge_email(a):
+        keys = list(a.keys())
+        Email = 0
+        for key in keys:
+            if key not in key_lst:
+                Email += int(a[key])
+                del a[key]
+        a['Email'] = str(Email)
+        return a
+
+    result = list(map(merge_email, result))
     return result
 
 def total_sessions(res_data):
@@ -257,9 +270,7 @@ def total_sessions(res_data):
     return totalSessions
 
 
-
 #-----------------------------------------------------------------------------
-
 
 
 def get_events(service, profile_id, startDate1, endDate1):
