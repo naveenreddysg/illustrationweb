@@ -453,5 +453,5 @@ if __name__ == '__main__':
   # for your API project in the Google API Console.
 
   port = int(os.environ.get("PORT", 8080))
-  app.run(host="0.0.0.0", debug=True, port=port)
-  # app.run(host="localhost", debug=True, port=port)
+  # app.run(host="0.0.0.0", debug=True, port=port)
+  app.run(host="localhost", debug=True, port=port)

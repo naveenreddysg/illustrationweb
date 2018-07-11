@@ -50,8 +50,8 @@ def date_converter(dates):
 
 def get_dates(N):
 
-    pre_end = datetime.datetime.now() + relativedelta(days=-1)
-    pre_start = datetime.datetime.now() + relativedelta(days=-N)
+    pre_end = datetime.datetime.now() + relativedelta(days=-2)
+    pre_start = datetime.datetime.now() + relativedelta(days=-N-1)
     prv_end = pre_start + relativedelta(days=-1)
     prv_start = prv_end + relativedelta(days=-(N-1))
     return (

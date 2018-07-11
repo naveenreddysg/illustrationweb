@@ -21,8 +21,8 @@ function myFunction() {
     }
     if (x==="7"){
     $(function() {
-    var start = moment().subtract(1, 'days').subtract(6,'days');
-    var end = moment().subtract(1, 'days');
+    var start = moment().subtract(2, 'days').subtract(6,'days');
+    var end = moment().subtract(2, 'days');
     function cb(start, end) {
         $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
     }
