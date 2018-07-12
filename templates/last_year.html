@@ -233,7 +233,14 @@ window.onload=func1
                         {{result['sessions'][0]['Current']}} Visits<img src="static/images/arrowup.png" height="20"/>{{result['sessions'][0]['Change']}}
                         {% else %}
                         {{result['sessions'][0]['Current']}} Visits<img src="static/images/arrowdown.png" height="20"/>{{result['sessions'][0]['Change']}}
-                        {% endif %}</font></div>
+                        {% endif %} |
+                        {%if result['goalconversions']['previous'][0] !=0 %}
+                        {% set change = ((result['goalconversions']['present'][0]-result['goalconversions']['previous'][0])/result['goalconversions']['previous'][0])*100 %}
+                        {{result['goalconversions']['present'][0]}} Conversions {% if change > 0 %}<img src="static/images/arrowup.png" height="20"/>{% else %}<img src="static/images/arrowdown.png" height="20"/>{% endif %} {{change|round(2)}}%
+                        {% else %}
+                        {{result['goalconversions']['present'][0]}} Conversions {% if change > 0 %}<img src="static/images/arrowup.png" height="20"/>{% else %}<img src="static/images/arrowdown.png" height="20"/>{% endif %} {%if result['goalconversions']['present'][0] ==0 %} 0% {% else %} 100% {% endif %}
+                        {% endif %}
+                    </font></div>
                   </div>
                     <canvas id="regionChart1" height="90"></canvas>
                 </div>
@@ -244,7 +251,14 @@ window.onload=func1
                         {{result['sessions'][1]['Current']}} Visits<img src="static/images/arrowup.png" height="20"/>{{result['sessions'][1]['Change']}}
                         {% else %}
                         {{result['sessions'][1]['Current']}} Visits<img src="static/images/arrowdown.png" height="20"/>{{result['sessions'][1]['Change']}}
-                        {% endif %}</font></div>
+                        {% endif %} |
+                        {%if result['goalconversions']['previous'][1] !=0 %}
+                        {% set change = ((result['goalconversions']['present'][1]-result['goalconversions']['previous'][1])/result['goalconversions']['previous'][1])*100 %}
+                        {{result['goalconversions']['present'][1]}} Conversions {% if change > 0 %}<img src="static/images/arrowup.png" height="20"/>{% else %}<img src="static/images/arrowdown.png" height="20"/>{% endif %} {{change|round(2)}}%
+                        {% else %}
+                        {{result['goalconversions']['present'][1]}} Conversions {% if change > 0 %}<img src="static/images/arrowup.png" height="20"/>{% else %}<img src="static/images/arrowdown.png" height="20"/>{% endif %} {%if result['goalconversions']['present'][1] ==0 %} 0% {% else %} 100% {% endif %}
+                        {% endif %}
+                    </font></div>
                   </div>
                     <canvas id="regionChart2" height="90"></canvas>
                 </div>
@@ -255,7 +269,14 @@ window.onload=func1
                             {{result['sessions'][2]['Current']}} Visits<img src="static/images/arrowup.png" height="20"/>{{result['sessions'][2]['Change']}}
                             {% else %}
                             {{result['sessions'][2]['Current']}} Visits<img src="static/images/arrowdown.png" height="20"/>{{result['sessions'][2]['Change']}}
-                            {% endif %}</font></div>
+                            {% endif %} |
+                            {%if result['goalconversions']['previous'][2] !=0 %}
+                            {% set change = ((result['goalconversions']['present'][2]-result['goalconversions']['previous'][2])/result['goalconversions']['previous'][2])*100 %}
+                            {{result['goalconversions']['present'][2]}} Conversions {% if change > 0 %}<img src="static/images/arrowup.png" height="20"/>{% else %}<img src="static/images/arrowdown.png" height="20"/>{% endif %} {{change|round(2)}}%
+                            {% else %}
+                            {{result['goalconversions']['present'][2]}} Conversions {% if change > 0 %}<img src="static/images/arrowup.png" height="20"/>{% else %}<img src="static/images/arrowdown.png" height="20"/>{% endif %} {%if result['goalconversions']['present'][2] ==0 %} 0% {% else %} 100% {% endif %}
+                            {% endif %}
+                        </font></div>
                     </div>
                   <canvas id="regionChart3" height="90"></canvas>
                 </div>
@@ -266,7 +287,14 @@ window.onload=func1
                             {{result['sessions'][3]['Current']}} Visits<img src="static/images/arrowup.png" height="20"/>{{result['sessions'][3]['Change']}}
                             {% else %}
                             {{result['sessions'][3]['Current']}} Visits<img src="static/images/arrowdown.png" height="20"/>{{result['sessions'][3]['Change']}}
-                            {% endif %}</font></div>
+                            {% endif %} |
+                            {%if result['goalconversions']['previous'][3] !=0 %}
+                            {% set change = ((result['goalconversions']['present'][3]-result['goalconversions']['previous'][3])/result['goalconversions']['previous'][3])*100 %}
+                            {{result['goalconversions']['present'][3]}} Conversions {% if change > 0 %}<img src="static/images/arrowup.png" height="20"/>{% else %}<img src="static/images/arrowdown.png" height="20"/>{% endif %} {{change|round(2)}}%
+                            {% else %}
+                            {{result['goalconversions']['present'][3]}} Conversions {% if change > 0 %}<img src="static/images/arrowup.png" height="20"/>{% else %}<img src="static/images/arrowdown.png" height="20"/>{% endif %} {%if result['goalconversions']['present'][3] ==0 %} 0% {% else %} 100% {% endif %}
+                            {% endif %}
+                        </font></div>
                     </div>
                     <canvas id="regionChart4" height="90"></canvas>
                 </div>
@@ -277,7 +305,14 @@ window.onload=func1
                         {{result['sessions'][4]['Current']}} Visits<img src="static/images/arrowup.png" height="20"/>{{result['sessions'][4]['Change']}}
                         {% else %}
                         {{result['sessions'][4]['Current']}} Visits<img src="static/images/arrowdown.png" height="20"/>{{result['sessions'][4]['Change']}}
-                        {% endif %}</font></div>
+                        {% endif %} |
+                        {%if result['goalconversions']['previous'][4] !=0 %}
+                        {% set change = ((result['goalconversions']['present'][4]-result['goalconversions']['previous'][4])/result['goalconversions']['previous'][4])*100 %}
+                        {{result['goalconversions']['present'][4]}} Conversions {% if change > 0 %}<img src="static/images/arrowup.png" height="20"/>{% else %}<img src="static/images/arrowdown.png" height="20"/>{% endif %} {{change|round(2)}}%
+                        {% else %}
+                        {{result['goalconversions']['present'][4]}} Conversions {% if change > 0 %}<img src="static/images/arrowup.png" height="20"/>{% else %}<img src="static/images/arrowdown.png" height="20"/>{% endif %} {%if result['goalconversions']['present'][4] ==0 %} 0% {% else %} 100% {% endif %}
+                        {% endif %}
+                    </font></div>
                     </div>
                   <canvas id="regionChart5" height="90"></canvas>
                 </div>
@@ -288,7 +323,14 @@ window.onload=func1
                             {{result['sessions'][5]['Current']}} Visits<img src="static/images/arrowup.png" height="20"/>{{result['sessions'][5]['Change']}}
                             {% else %}
                             {{result['sessions'][5]['Current']}} Visits<img src="static/images/arrowdown.png" height="20"/>{{result['sessions'][5]['Change']}}
-                            {% endif %}</font></div>
+                            {% endif %} |
+                            {%if result['goalconversions']['previous'][5] !=0 %}
+                            {% set change = ((result['goalconversions']['present'][5]-result['goalconversions']['previous'][5])/result['goalconversions']['previous'][5])*100 %}
+                            {{result['goalconversions']['present'][5]}} Conversions {% if change > 0 %}<img src="static/images/arrowup.png" height="20"/>{% else %}<img src="static/images/arrowdown.png" height="20"/>{% endif %} {{change|round(2)}}%
+                            {% else %}
+                            {{result['goalconversions']['present'][5]}} Conversions {% if change > 0 %}<img src="static/images/arrowup.png" height="20"/>{% else %}<img src="static/images/arrowdown.png" height="20"/>{% endif %} {%if result['goalconversions']['present'][5] ==0 %} 0% {% else %} 100% {% endif %}
+                            {% endif %}
+                        </font></div>
                     </div>
                   <canvas id="regionChart6" height="90"></canvas>
                 </div>
@@ -299,7 +341,14 @@ window.onload=func1
                             {{result['sessions'][6]['Current']}} Visits<img src="static/images/arrowup.png" height="20"/>{{result['sessions'][6]['Change']}}
                             {% else %}
                             {{result['sessions'][6]['Current']}} Visits<img src="static/images/arrowdown.png" height="20"/>{{result['sessions'][6]['Change']}}
-                            {% endif %}</font></div>
+                            {% endif %} |
+                            {%if result['goalconversions']['previous'][6] !=0 %}
+                            {% set change = ((result['goalconversions']['present'][6]-result['goalconversions']['previous'][6])/result['goalconversions']['previous'][6])*100 %}
+                            {{result['goalconversions']['present'][6]}} Conversions {% if change > 0 %}<img src="static/images/arrowup.png" height="20"/>{% else %}<img src="static/images/arrowdown.png" height="20"/>{% endif %} {{change|round(2)}}%
+                            {% else %}
+                            {{result['goalconversions']['present'][6]}} Conversions {% if change > 0 %}<img src="static/images/arrowup.png" height="20"/>{% else %}<img src="static/images/arrowdown.png" height="20"/>{% endif %} {%if result['goalconversions']['present'][6] ==0 %} 0% {% else %} 100% {% endif %}
+                            {% endif %}
+                        </font></div>
                     </div>
                   <canvas id="regionChart7" height="90"></canvas>
                 </div>
@@ -310,7 +359,16 @@ window.onload=func1
                             {{result['sessions'][7]['Current']}} Visits<img src="static/images/arrowup.png" height="20"/>{{result['sessions'][7]['Change']}}
                             {% else %}
                             {{result['sessions'][7]['Current']}} Visits<img src="static/images/arrowdown.png" height="20"/>{{result['sessions'][7]['Change']}}
-                            {% endif %}</font></div>
+                            {% endif %} |
+                            {%set present = result['goalconversions']['present'][7]+result['goalconversions']['present'][8] %}
+                            {%set previous = result['goalconversions']['previous'][7]+result['goalconversions']['previous'][8] %}
+                            {%if previous !=0 %}
+                            {% set change = ((present-previous)/previous)*100 %}
+                            {{present}} Conversions {% if change > 0 %}<img src="static/images/arrowup.png" height="20"/>{% else %}<img src="static/images/arrowdown.png" height="20"/>{% endif %} {{change|round(2)}}%
+                            {% else %}
+                            {{present}} Conversions {% if change > 0 %}<img src="static/images/arrowup.png" height="20"/>{% else %}<img src="static/images/arrowdown.png" height="20"/>{% endif %} {%if present ==0 %} 0% {% else %} 100% {% endif %}
+                            {% endif %}
+                        </font></div>
                     </div>
                     <canvas id="regionChart8" height="90"></canvas>
                 </div>

@@ -78,8 +78,11 @@ class SessionsCategoryResults:
         return main_result
 
     def main(self):
-        pre_session_results = self.current_results.sessions(self.option)
-        prev_sessions_results = self.previous_results.sessions(self.option)
+        pre_session_results = self.current_results.sessions(self.option)[0]
+        prev_sessions_results = self.previous_results.sessions(self.option)[0]
+
+        pre_conversion_results = self.current_results.sessions(self.option)[1]
+        prev_conversion_results = self.previous_results.sessions(self.option)[1]
 
         keys = ['Country', 'Organic Search', 'Direct', 'Referral', 'Social', 'Paid Search', 'Email']
         pre_total_data = get_Month_data(pre_session_results, keys)
@@ -134,6 +137,7 @@ class SessionsCategoryResults:
             total_sessions_line_data.append(new)
 
         return {
+            'goalconversions':{'present':pre_conversion_results,'previous':prev_conversion_results},
             'sessions': {'present': pre_total_data, 'previous': prev_total_data},
             'totalSessions': sessions_main_result,
             'session_category_line_data': source_change_percentage,

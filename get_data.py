@@ -218,8 +218,15 @@ def get_sessions(service, type, profile_id, filters, startDate1, endDate1):
       dimensions=dimensions,
       filters=filters
     ).execute()
+  pres_month2 = service.data().ga().get(
+      ids='ga:' + profile_id,
+      start_date=str(startDate1),
+      end_date=str(endDate1),
+      metrics='ga:goalCompletionsAll',
+      filters=filters
+  ).execute()
 
-  return pres_month
+  return pres_month,pres_month2
 
 def print_sessions(results, country):
 
@@ -754,8 +761,11 @@ class mainClass:
 
         option = "ga:" + option
         sessions_category = []
+        goalconversions = []
         for profile_id in session:
-            result = get_sessions(self.service, option, profile_id[0], profile_id[1], self.start_date, self.end_date)
+            result = get_sessions(self.service, option, profile_id[0], profile_id[1], self.start_date, self.end_date)[0]
+            result2 = get_sessions(self.service, option, profile_id[0], profile_id[1], self.start_date, self.end_date)[1]
+            goalconversions.append(int(result2.get('totalsForAllResults')['ga:goalCompletionsAll']))
             sessions = print_sessions(result, profile_id[1])
             sessions_category.append(sessions)
 
@@ -775,7 +785,7 @@ class mainClass:
         del sessions_category[-1]
         del sessions_category[-1]
         sessions_category.append(newlist)
-        return sessions_category
+        return sessions_category,goalconversions
 
     def agents(self):
         agent = [
